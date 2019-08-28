@@ -1,0 +1,68 @@
+Count is 10
+Mean: 526.6; SD: 90.2327199523543
+Count is 20
+Mean: 584.2; SD: 63.87501956946862
+Count is 30
+Mean: 512.8666666666667; SD: 53.876726577128515
+Count is 40
+Mean: 493.6; SD: 49.00294315140673
+Count is 50
+Mean: 510.24; SD: 41.378740918495815
+Count is 60
+Mean: 512.7; SD: 38.31111312516107
+Count is 70
+Mean: 500.65714285714284; SD: 35.10805187022557
+Count is 80
+Mean: 497.95; SD: 33.01045170661862
+Count is 90
+Mean: 496.1111111111111; SD: 30.57039639590022
+Count is 100
+Mean: 487.81; SD: 29.202361205902513
+
+Deleting numbers from 100 to 10:
+
+Count is 90
+Mean: 496.1111111111111; SD: 30.57039639590022
+Mean matches at count 90
+SD matches at count 90
+
+Count is 80
+Mean: 497.95; SD: 33.01045170661862
+Mean matches at count 80
+SD matches at count 80
+
+Count is 70
+Mean: 500.65714285714284; SD: 35.10805187022557
+Mean matches at count 70
+SD matches at count 70
+
+Count is 60
+Mean: 512.7; SD: 38.31111312516107
+Mean matches at count 60
+SD matches at count 60
+
+Count is 50
+Mean: 510.24; SD: 41.378740918495815
+Mean matches at count 50
+SD matches at count 50
+
+Count is 40
+Mean: 493.6; SD: 49.00294315140673
+Mean matches at count 40
+SD matches at count 40
+
+Count is 30
+Mean: 512.8666666666667; SD: 53.876726577128515
+Mean matches at count 30
+SD matches at count 30
+
+Count is 20
+Mean: 584.2; SD: 63.87501956946862
+Mean matches at count 20
+SD matches at count 20
+
+Count is 10
+Mean: 526.6; SD: 90.2327199523543
+Mean matches at count 10
+SD matches at count 10
+
