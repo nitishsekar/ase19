@@ -1,0 +1,20 @@
+PART 1
+Reading file: C:\Users\nitis\Desktop\CSC 591 - ASE\HW 2\test.csv
+Converting the file into a list of lists.
+NOTE: Handling one special case (row not the same size as line 1) now to make code simpler
+[$cloudCover, $temp, ?$humid, <wind, $playHours]
+[100, 68, 80, 0, 3]
+[0, 85, 85, 0, 0]
+[0, 80, 90, 10, 0]
+[60, 83, 86, 0, 4]
+[100, 70, 96, 0, 3]
+[100, 65, 70, 20, 0]
+[70, 64, 65, 15, 5]
+[0, 72, 95, 0, 0]
+[0, 69, 70, 0, 4]
+[?, 75, 80, 0, ?]
+[0, 75, 70, 18, 4]
+null
+[40, 81, 75, 0, 2]
+[100, 71, 91, 15, 0]
+null represents invalid rows.
