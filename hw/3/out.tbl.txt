@@ -1,0 +1,149 @@
+Reading file: test.csv
+t.cols
+| 1
+| | add: Sym
+| | cnt
+| | | rainy: 5
+| | | overcast: 4
+| | | sunny: 5
+| | col: 1
+| | mode: sunny
+| | most: 5
+| | n: 14
+| | entropy: 1.58
+| | txt: outlook
+| 3
+| | add: Num
+| | col: 3
+| | hi: 96
+| | low: 65
+| | mean: 81.6429
+| | n: 14
+| | sd: 10.2852
+| | txt: <humid
+| 4
+| | add: Sym
+| | cnt
+| | | TRUE: 6
+| | | FALSE: 8
+| | col: 4
+| | mode: FALSE
+| | most: 8
+| | n: 14
+| | entropy: 0.99
+| | txt: wind
+| 5
+| | add: Sym
+| | cnt
+| | | no: 5
+| | | yes: 9
+| | col: 5
+| | mode: yes
+| | most: 9
+| | n: 14
+| | entropy: 0.94
+| | txt: !play
+t.my
+| goals
+| | 3
+| | 5
+| nums
+| | 3
+| syms
+| | 1
+| | 4
+| | 5
+| w
+| | 3 : -1
+| xnums
+| xs
+| | 1
+| | 4
+| xsyms
+| | 1
+| | 4
+t.rows
+| 1
+| | cells
+| | | 1: rainy
+| | | 2: 80
+| | | 3: FALSE
+| | | 4: yes
+| 2
+| | cells
+| | | 1: sunny
+| | | 2: 85
+| | | 3: FALSE
+| | | 4: no
+| 3
+| | cells
+| | | 1: sunny
+| | | 2: 90
+| | | 3: TRUE
+| | | 4: no
+| 4
+| | cells
+| | | 1: overcast
+| | | 2: 86
+| | | 3: FALSE
+| | | 4: yes
+| 5
+| | cells
+| | | 1: rainy
+| | | 2: 96
+| | | 3: FALSE
+| | | 4: yes
+| 6
+| | cells
+| | | 1: rainy
+| | | 2: 70
+| | | 3: TRUE
+| | | 4: no
+| 7
+| | cells
+| | | 1: overcast
+| | | 2: 65
+| | | 3: TRUE
+| | | 4: yes
+| 8
+| | cells
+| | | 1: sunny
+| | | 2: 95
+| | | 3: FALSE
+| | | 4: no
+| 9
+| | cells
+| | | 1: sunny
+| | | 2: 70
+| | | 3: FALSE
+| | | 4: yes
+| 10
+| | cells
+| | | 1: rainy
+| | | 2: 80
+| | | 3: FALSE
+| | | 4: yes
+| 11
+| | cells
+| | | 1: sunny
+| | | 2: 70
+| | | 3: TRUE
+| | | 4: yes
+| 12
+| | cells
+| | | 1: overcast
+| | | 2: 90
+| | | 3: TRUE
+| | | 4: yes
+| 13
+| | cells
+| | | 1: overcast
+| | | 2: 75
+| | | 3: FALSE
+| | | 4: yes
+| 14
+| | cells
+| | | 1: rainy
+| | | 2: 91
+| | | 3: TRUE
+| | | 4: no
