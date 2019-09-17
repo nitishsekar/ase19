@@ -1,7 +1,7 @@
-##HW 4
-###Team:
+## HW 4
+### Team:
  * Satanik Ray - sray7
  * Nitish Sekar - nsekar
   
-###Details:  
+### Details:  
 ZeroR classifier implemented. Run TestZeroR to check output
