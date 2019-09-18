@@ -136,7 +136,15 @@ public class Tbl {
 	public Set<Integer> getIgnoreCol() {
 		return ignoreCol;
 	}
+	
+	public Integer getRowCount() {
+		return rows.size();
+	}
 
+	public List<Col> getCols() {
+		return cols;
+	}
+	
 	public String getClassMode() {
 		/* Returns mode if the last Column is a class (Sym). Else, null. */
 		Col col = cols.get(cols.size()-1);

@@ -62,7 +62,6 @@ public class ZeroR {
 	}
 	
 	public void displayResults() {
-		tbl.dump();
 		abcd.abcdReport();
 	}
 	

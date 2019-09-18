@@ -9,6 +9,7 @@ public class Sym extends Col{
     Integer totalCount = 0;
     String mode;
     Integer modeCount = Integer.MIN_VALUE;
+    private static final int M = 2;
 
     public void addSymbol(String colVal) {
         if (colMap.containsKey(colVal)) {
@@ -67,13 +68,15 @@ public class Sym extends Col{
         return entropy;
     }
 
-    public float symLike(String val) {
+    public float symLike(String val, float prior) {
         int freq = 0;
-        for (Map.Entry<String,Integer> entry : colMap.entrySet()) {
-            if (entry.getKey() == val) {
-                freq = entry.getValue();
-            }
+        //System.out.println(colMap.keySet()+" val: "+val);
+        if(colMap.containsKey(val)) {
+	        freq = colMap.get(val);
+	        //System.out.println("Prior: "+prior+", Freq. "+freq+", total: "+totalCount);
+	        return (float) (freq + M*prior)/(totalCount + M);
+        } else {
+        	return (float) (0 + M*prior)/(totalCount + M);
         }
-        return freq/totalCount;
     }
 }

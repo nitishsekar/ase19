@@ -33,6 +33,8 @@ public class Num extends Col {
         if(arg < low) low = arg;
         mean = generateMean(prevSum, count);
         stdDev = generateSD(valList, mean, count);
+        //System.out.println("ValList: "+valList+", mean: "+mean+", count: "+count);
+        //System.out.println("SD: "+stdDev);
         if(count % 10 == 0){
             meanList.add(mean);
             sdList.add(stdDev);
@@ -84,16 +86,23 @@ public class Num extends Col {
 
 	private double generateSD(List<Float> integerList, double mean, int count) {
         float variance = 0;
-        for (int i = 0; i < count; i++) {
-            variance += Math.pow(integerList.get(i)-mean, 2);
-        }
-        return Math.sqrt(variance/(count-1));
+        if(count > 1) {
+	        for (int i = 0; i < count; i++) {
+	            variance += Math.pow(integerList.get(i)-mean, 2);
+	        }
+	        return Math.sqrt(variance/(count-1));
+	    } else {
+	    	return 0;
+	    }
     }
-
-    public float numLike(int val) {
-        float numerator = 2.7128^(-(val - mean)^2/(2*(stdDev)^2 + 0.0001));
-        float denominator = (3.14159*2*(stdDev)^2)^0.5;
-        return numerator/(denominator + (10^(-64)));
+	
+	 public float numLike(float val) {
+		//System.out.println("Mean is "+mean+" and SD is "+stdDev); 
+        float numerator = (float) Math.pow(2.7128, (-Math.pow(val - mean, 2)/(2*Math.pow(stdDev, 2) + 0.0001)));
+        //System.out.println(numerator);
+        float denominator = (float) Math.pow(3.14159*2*Math.pow(stdDev, 2), 0.5);
+        //System.out.println(denominator);
+        return (float) (numerator/(denominator + Math.pow(10, -64)));
     }
 
 }

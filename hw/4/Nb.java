@@ -16,7 +16,7 @@ public class Nb {
 	private List<String> classifiedResults;
 	private List<List<String>> file;
 	private List<String> colRow;
-	private static final int TRAIN_LIMIT = 2;
+	private static final int TRAIN_LIMIT = 4;
 	private static final String OVERALL_TABLE = "*OT*";
 	
 	public Nb() {
@@ -77,6 +77,13 @@ public class Nb {
 	
 	private void parseFileAndClassify() {
 		for(int i=0; i<file.size(); i++) {
+			/*if(i == TRAIN_LIMIT+1) {
+				for(String s: classes) {
+					System.out.println("Table for class "+s);
+					Tbl t = tbls.get(s);
+					t.dump();
+				}
+			}*/
 			if(i == 0) {
 				Tbl tbl = tbls.get(OVERALL_TABLE);
 				colRow = file.get(i);
@@ -106,8 +113,10 @@ public class Nb {
 					List<String> row = file.get(i);
 					if(classes.contains(row.get(row.size()-1))) {
 						String classification = classify(row);
-						abcd.classify(row.get(row.size()-1), classification);
-						classifiedResults.add(classification);
+						if(classification != "") {
+							abcd.classify(row.get(row.size()-1), classification);
+							classifiedResults.add(classification);
+						}
 						Tbl tbl = tbls.get(row.get(row.size()-1));
 						tbl.addRow(row);
 						tbls.replace(row.get(row.size()-1), tbl);
@@ -117,9 +126,13 @@ public class Nb {
 					} else {
 						Tbl tbl = new Tbl();
 						tbl.setCols(colRow);
-						tbl.addRow(row);
 						tbls.put(row.get(row.size()-1), tbl);
 						classes.add(row.get(row.size()-1));
+						String classification = classify(row);
+						abcd.classify(row.get(row.size()-1), classification);
+						classifiedResults.add(classification);
+						tbl.addRow(row);
+						tbls.replace(row.get(row.size()-1), tbl);
 						tbl = tbls.get(OVERALL_TABLE);
 						tbl.addRow(row);
 						tbls.replace(OVERALL_TABLE, tbl);
@@ -131,10 +144,58 @@ public class Nb {
 	}
 	
 	private String classify(List<String> row) {
+		Tbl ov = tbls.get(OVERALL_TABLE);
+		int n = ov.getRowCount();
+		float maxProb = Float.MIN_VALUE;
+		String classified = "";
+		int maxfreq = 0;
+		List<Float> ps = new ArrayList<>();
+		String maxFreqClass = "";
 		for(String s: classes) {
+			//System.out.println(s);
 			Tbl t = tbls.get(s);
-			
+			Set<Integer> ic = t.getIgnoreCol();
+			List<Col> cols = t.getCols();
+			int j = 0;
+			float classProb = 1.0f;
+			int classCount = t.getRowCount();
+			if(classCount > maxfreq) {
+				maxfreq = classCount;
+				maxFreqClass = s;
+			}
+			float pc = (float) classCount/n;
+			for(int i=0; i<row.size()-1; i++) {
+				
+				if(!ic.contains(i)) {
+					Col c = cols.get(j);
+					if(c.getClass() == Num.class) {
+						Num num = (Num) c;
+						float p = num.numLike(Float.parseFloat(row.get(i)));
+						//System.out.println(c.getTxt()+" Pr: "+p);
+						classProb*=p;
+					} else if(c.getClass() == Sym.class) {
+						Sym sym = (Sym) c;
+						float p = sym.symLike(row.get(i), pc);
+						classProb*=p;
+					}
+				}
+				j++;
+			}
+			classProb*=pc;
+			//System.out.println("DEBUG: Prob. for "+s+": "+classProb);
+			if(classProb > maxProb) {
+				maxProb = classProb;
+				classified = s;
+			}
+			ps.add(classProb);
 		}
-		return "";
+		
+		if(classified == "") {
+			classified = maxFreqClass;
+		}
+		
+		if(classified == "")
+		System.out.println(row+" "+classified+" "+ps);
+		return classified;
 	}
 }
