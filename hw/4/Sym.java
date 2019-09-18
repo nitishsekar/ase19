@@ -66,4 +66,14 @@ public class Sym extends Col{
         }
         return entropy;
     }
+
+    public float symLike(String val) {
+        int freq = 0;
+        for (Map.Entry<String,Integer> entry : colMap.entrySet()) {
+            if (entry.getKey() == val) {
+                freq = entry.getValue();
+            }
+        }
+        return freq/totalCount;
+    }
 }

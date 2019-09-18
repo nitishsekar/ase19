@@ -90,4 +90,10 @@ public class Num extends Col {
         return Math.sqrt(variance/(count-1));
     }
 
+    public float numLike(int val) {
+        float numerator = 2.7128^(-(val - mean)^2/(2*(stdDev)^2 + 0.0001));
+        float denominator = (3.14159*2*(stdDev)^2)^0.5;
+        return numerator/(denominator + (10^(-64)));
+    }
+
 }
