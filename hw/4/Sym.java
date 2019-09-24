@@ -9,7 +9,7 @@ public class Sym extends Col{
     Integer totalCount = 0;
     String mode;
     Integer modeCount = Integer.MIN_VALUE;
-    private static final int M = 2;
+    private static final float M = 0.001f;
 
     public void addSymbol(String colVal) {
         if (colMap.containsKey(colVal)) {

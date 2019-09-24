@@ -16,7 +16,7 @@ public class Nb {
 	private List<String> classifiedResults;
 	private List<List<String>> file;
 	private List<String> colRow;
-	private static final int TRAIN_LIMIT = 7;
+	private static final int TRAIN_LIMIT = 4;
 	private static final String OVERALL_TABLE = "*OT*";
 	
 	public Nb() {
