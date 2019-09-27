@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,6 +11,7 @@ public class Sym extends Col{
     String mode;
     Integer modeCount = Integer.MIN_VALUE;
     private static final float M = 0.001f;
+    double entropyList;
 
     public void addSymbol(String colVal) {
         if (colMap.containsKey(colVal)) {
@@ -77,6 +79,29 @@ public class Sym extends Col{
 	        return (float) (freq + M*prior)/(totalCount + M);
         } else {
         	return (float) (0 + M*prior)/(totalCount + M);
+        }
+    }
+
+    public String deleteFirstSym() throws IOException {
+        String arg = words.get(0);
+        words.remove(0);
+        totalCount--;
+        for (Map.Entry<String,Integer> entry : colMap.entrySet()) {
+            if (entry.getKey().equals(arg)) {
+                entry.setValue(entry.getValue()-1);
+            }
+        }
+        if (arg == mode) setMode();
+        entropyList = entropyCalc();
+        return arg;
+    }
+
+    public void setMode() {
+        for (Map.Entry<String,Integer> entry : colMap.entrySet()) {
+            if (entry.getValue() > modeCount) {
+                modeCount = entry.getValue();
+                mode = entry.getKey();
+            }
         }
     }
 }
