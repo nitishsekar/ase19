@@ -62,12 +62,13 @@ public class SplitAttributes {
           yNum.updateMeanAndSD(xy.getY());
       }
       findSplits(xNum, yNum);
+      printSplits();
     }
 
     public void findSplits(Num x, Num y) {
     	try {
-			Num xR = (Num)x.clone();
-			Num yR = (Num)y.clone();
+			Num xR = new Num(x);
+			Num yR = new Num(y);
 			Num xL = new Num();
 			Num yL = new Num();
 			
@@ -76,14 +77,40 @@ public class SplitAttributes {
 			Num cutXL = new Num();
 			Num cutYL = new Num();
 			
-			int n = xR.getCount();
+			Double best = y.getStdDev();
+			int n = yR.getCount();
+			float epsilon = (float) (COHEN*y.getStdDev());
 			boolean cut = false;
+			int cutLoc = -1;
+			List<Float> list = y.getValList();
+			float start = list.get(0);
+			float stop = list.get(list.size()-1);
 			for(int i=0; i<n; i++) {
-				float val = xR.deleteFirstNum();
-				xL.updateMeanAndSD(val);
-				if(i >= minSplit) {
-					// Check if a cut satisfies all criteria
-					
+				if(n-i-1 >= minSplit) {
+					float val = xR.deleteFirstNum();
+					xL.updateMeanAndSD(val);
+					float yVal = yR.deleteFirstNum();
+					yL.updateMeanAndSD(yVal);
+					if(i > minSplit-1) {
+						if(yVal == yR.getValList().get(0)) continue;
+						// Check if a cut satisfies all criteria
+						if(Math.abs(yL.getMean() - yR.getMean()) >= epsilon) {
+							if((yR.getValList().get(0)-start >= epsilon) &&
+								(stop-yVal >= epsilon)){
+								Double expect = expectedValue(yL, yR);
+								if(expect*TRIVIAL < best) {
+									best = expect;
+									cut = true;
+									cutLoc = i;
+									cutXL = new Num(xL);
+									cutXR = new Num(xR);
+									cutYL = new Num(yL);
+									cutYR = new Num(yR);
+									
+								}
+							}
+						}
+					}
 				}
 			}
 			if(cut) {
@@ -100,6 +127,20 @@ public class SplitAttributes {
 		}
     }
     
+    public void printSplits() {
+    	for(int i=0; i<xRanges.size(); i++) {
+    		Num x = xRanges.get(i);
+    		Num y = yRanges.get(i);
+    		System.out.println(String.format(" %d x.n %5d | x.lo %10.5f  x.hi %10.5f | y.lo %10.5f  y.hi %10.5f", 
+    				i+1, 
+    				x.getCount(), 
+    				x.getLow(), 
+    				x.getHi(), 
+    				y.getLow(), 
+    				y.getHi()));
+    		}
+    }
+    
     /* O(n^2) */
     private boolean cliffsDeltaNum(List<Float> a, List<Float> b) {
     	int n = 0, gt = 0, lt = 0;
@@ -110,7 +151,13 @@ public class SplitAttributes {
     			if(i < j) lt++;
     		}
     	}
-    	return Math.abs(gt - lt)/n <= DULL;
+    	System.out.println("DEBUG: GT "+gt+" LT "+lt+" Cliffs Delta "+Math.abs(gt - lt)/(a.size()*b.size()));
+    	return Math.abs(gt - lt)/(a.size()*b.size()) <= DULL;
+    }
+    
+    private Double expectedValue(Num l, Num r) {
+    	int n = l.getCount() + r.getCount();
+    	return (((l.getCount()/n*l.getStdDev()) + (r.getCount()/n*r.getStdDev())));
     }
     
     static class XYComparator implements Comparator<XY> {

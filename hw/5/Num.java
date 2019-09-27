@@ -25,6 +25,22 @@ public class Num extends Col implements Cloneable {
         low = Float.MAX_VALUE;
     }
     
+    public Num(Num num) {
+    	this.valList = new ArrayList<>();
+    	for(Float f:num.valList) this.valList.add(f);
+    	this.meanList = new ArrayList<>();
+    	for(Double f:num.meanList) this.meanList.add(f);
+    	this.meanList = num.meanList;
+    	this.sdList = new ArrayList<>();
+    	for(Double f:num.sdList) this.sdList.add(f);
+    	this.prevSum = num.prevSum;
+    	this.count = num.count;
+    	this.mean = num.mean;
+    	this.stdDev = num.stdDev;
+    	this.hi = num.hi;
+    	this.low = num.low;
+    }
+    
     public Object clone() throws
 	    CloneNotSupportedException 
 	{ 
@@ -93,8 +109,11 @@ public class Num extends Col implements Cloneable {
         mean = meanV;
         double sd = generateSD(valList, mean, count);
         stdDev = sd;
-        if(arg == low) setLow();
-        if(arg == hi) setHi();
+        if(low.equals(arg)) {
+        	//System.out.println("DEBUG: arg "+arg+" low "+low);
+        	setLow();
+        }
+        else if(hi.equals(arg)) setHi();
         return arg;
     }
     
@@ -110,8 +129,9 @@ public class Num extends Col implements Cloneable {
 
 	private double generateSD(List<Float> integerList, double mean, int count) {
         float variance = 0;
+//        /System.out.println("DEBUG SD: list count: "+integerList.size()+", count: "+count);
         if(count > 1) {
-	        for (int i = 0; i < count; i++) {
+	        for (int i = 0; i < integerList.size(); i++) {
 	            variance += Math.pow(integerList.get(i)-mean, 2);
 	        }
 	        return Math.sqrt(variance/(count-1));
