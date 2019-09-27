@@ -11,7 +11,7 @@ public class TestSplitAttributes {
 	public static void main(String[] args) {
 		BufferedReader csvReader;
 		List<String> list = new ArrayList<String>();
-		String fileName = "C:\\Users\\nitis\\Desktop\\CSC 591 - ASE\\HW 5\\Numtest.txt";
+		String fileName = "Numtest.txt";
 		try {
 			System.out.println("Reading file: "+fileName+"\n");
 			csvReader = new BufferedReader(new FileReader(fileName));
