@@ -22,12 +22,10 @@ public class SplitAttributes {
 		minSplit = 0;
 	}
 
-    public PriorityQueue<YZ> getSymSplit(List<String> list) {
-//        PriorityQueue<XY> pq = new PriorityQueue<XY>(Integer.MAX_VALUE, new XYComparator());
-        PriorityQueue<YZ> pq = new PriorityQueue<YZ>(1, new YZComparator());
+    public void getSymSplit(List<String> list) throws IOException {
+        PriorityQueue<YZ> pq = new PriorityQueue<YZ>(new YZComparator());
         for(String s: list) {
         	String[] strings = s.replaceAll("[\\[\\]]","").split(",");
-//            XY xy = new XY(Double.valueOf(strings[0]), Double.valueOf(strings[1]));
             YZ yz = new YZ(Float.valueOf(strings[0].trim()), strings[1].trim());
             pq.add(yz);
         }
@@ -37,7 +35,15 @@ public class SplitAttributes {
             System.out.println(yz.getY()+","+yz.getZ());
         }
         */
-        return pq;
+        Num xNum = new Num();
+        Sym ySym = new Sym();
+        while (!pq.isEmpty()) {
+            YZ yz = pq.poll();
+            xNum.updateMeanAndSD(yz.getY());
+            ySym.addSymbol(yz.getZ());
+        }
+        findSymSplits(xNum, ySym);
+        printSplits();
     }
     
     public void getNumSplit(List<String> list) throws IOException {
@@ -61,11 +67,11 @@ public class SplitAttributes {
           xNum.updateMeanAndSD(xy.getX());
           yNum.updateMeanAndSD(xy.getY());
       }
-      findSplits(xNum, yNum);
+      findNumSplits(xNum, yNum);
       printSplits();
     }
 
-    public void findSplits(Num x, Num y) {
+    public void findNumSplits(Num x, Num y) {
     	try {
 			Num xR = new Num(x);
 			Num yR = new Num(y);
@@ -115,8 +121,8 @@ public class SplitAttributes {
 			}
 			if(cut) {
 				// Recurse if cut exists
-				findSplits(cutXL, cutYL);
-				findSplits(cutXR, cutYR);
+				findNumSplits(cutXL, cutYL);
+				findNumSplits(cutXR, cutYR);
 			} else {
 				// Else, record the split
 				xRanges.add(x);
@@ -126,6 +132,72 @@ public class SplitAttributes {
 			e.printStackTrace();
 		}
     }
+    
+    public void findSymSplits(Num x, Sym y) {
+    	try {
+			Num xR = new Num(x);
+			Sym yR = new Sym(y);
+			Num xL = new Num();
+			Sym yL = new Sym();
+			
+			Num cutXR = new Num();
+			Sym cutYR = new Sym();
+			Num cutXL = new Num();
+			Sym cutYL = new Sym();
+			
+			Double best = y.getEntropy();
+			int n = yR.getTotalCount();
+			float epsilon = (float) (COHEN*y.getEntropy());
+			boolean cut = false;
+			int cutLoc = -1;
+			List<String> list = y.getWords();
+			String start = list.get(0);
+			String stop = list.get(list.size()-1);
+			for(int i=0; i<n; i++) {
+				if(n-i-1 >= minSplit) {
+					float val = xR.deleteFirstNum();
+					xL.updateMeanAndSD(val);
+					String yVal = yR.deleteFirstSym();
+					yL.addSymbol(yVal);
+					if(i > minSplit-1) {
+						if(yVal == yR.getWords().get(0)) continue;
+						
+						/* Modify code from here onwards */
+						
+						// Check if a cut satisfies all criteria
+						if(Math.abs(yL.getMode() - yR.getMode()) >= epsilon) {
+							if((yR.getValList().get(0)-start >= epsilon) &&
+								(stop-yVal >= epsilon)){
+								Double expect = expectedValue(yL, yR);
+								if(expect*TRIVIAL < best) {
+									best = expect;
+									cut = true;
+									cutLoc = i;
+									cutXL = new Num(xL);
+									cutXR = new Num(xR);
+									cutYL = new Num(yL);
+									cutYR = new Num(yR);
+									
+								}
+							}
+						}
+					}
+				}
+			}
+			if(cut) {
+				// Recurse if cut exists
+				findNumSplits(cutXL, cutYL);
+				findNumSplits(cutXR, cutYR);
+			} else {
+				// Else, record the split
+				xRanges.add(x);
+				yRanges.add(y);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    }
+   
     
     public void printSplits() {
     	for(int i=0; i<xRanges.size(); i++) {
@@ -207,7 +279,7 @@ public class SplitAttributes {
             return z;
         }
 
-        public double getY() {
+        public float getY() {
             return y;
         }
     }

@@ -5,13 +5,31 @@ import java.util.List;
 import java.util.Map;
 
 public class Sym extends Col{
-    List<String> words = new ArrayList<String>();
-    Map<String, Integer> colMap = new HashMap<String, Integer>();
-    Integer totalCount = 0;
+    List<String> words;
+    Map<String, Integer> colMap;
+    Integer totalCount;
     String mode;
-    Integer modeCount = Integer.MIN_VALUE;
+    Integer modeCount;
     private static final float M = 0.001f;
     double entropyList;
+    
+    public Sym() {
+    	this.words = new ArrayList<>();
+    	this.colMap = new HashMap<>();
+    	this.totalCount = 0;
+    	this.modeCount = Integer.MIN_VALUE;
+    }
+    
+    public Sym(Sym sym) {
+    	this.words = new ArrayList<>();
+    	for(String s:sym.words) this.words.add(s);
+    	this.colMap = new HashMap<>();
+    	for(String s:sym.colMap.keySet()) this.colMap.put(s, sym.colMap.get(s));
+    	this.totalCount = sym.totalCount;
+    	this.mode = sym.mode;
+    	this.modeCount = sym.modeCount;
+    	this.entropyList = sym.entropyList;
+    }
 
     public void addSymbol(String colVal) {
         if (colMap.containsKey(colVal)) {
@@ -103,5 +121,9 @@ public class Sym extends Col{
                 mode = entry.getKey();
             }
         }
+    }
+    
+    public double getEntropy() {
+    	return entropyList;
     }
 }
