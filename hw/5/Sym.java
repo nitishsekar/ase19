@@ -56,7 +56,7 @@ public class Sym extends Col{
     }
 
     public List<String> getWords() {
-		return words;
+        return words;
 	}
 
 	public Map<String, Integer> getColMap() {
@@ -78,10 +78,7 @@ public class Sym extends Col{
 	public double entropyCalc() {
         double entropy = 0.0;
         for (Map.Entry<String,Integer> entry : colMap.entrySet()) {
-            if (entry.getValue() > modeCount) {
-                modeCount = entry.getValue();
-                mode = entry.getKey();
-            }
+            if (entry.getValue() == 0) continue;
             double pi = ((double)entry.getValue()/totalCount);
             entropy = entropy + (-pi)*(Math.log(pi)/Math.log(2));
         }
@@ -109,14 +106,16 @@ public class Sym extends Col{
                 entry.setValue(entry.getValue()-1);
             }
         }
-        if (arg == mode) setMode();
+        if (arg.equals(mode)) setMode();
         entropyList = entropyCalc();
         return arg;
     }
 
     public void setMode() {
+        int maxValue = Integer.MIN_VALUE;
         for (Map.Entry<String,Integer> entry : colMap.entrySet()) {
-            if (entry.getValue() > modeCount) {
+            if (entry.getValue() > maxValue) {
+                maxValue = entry.getValue();
                 modeCount = entry.getValue();
                 mode = entry.getKey();
             }
@@ -124,6 +123,14 @@ public class Sym extends Col{
     }
     
     public double getEntropy() {
-    	return entropyList;
+    	return entropyCalc();
+    }
+
+    public List<String> getValList() {
+        return words;
+    }
+
+    public Integer getCount() {
+        return totalCount;
     }
 }
