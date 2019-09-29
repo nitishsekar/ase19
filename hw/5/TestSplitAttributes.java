@@ -24,8 +24,8 @@ public class TestSplitAttributes {
 				csvReader.close();
 				SplitAttributes sc = new SplitAttributes();
 //				sc.getNumSplit(list);
-				sc.getSymSplit(list);
-				
+//				sc.getSymSplit(list);
+				sc.identifySplit(list,"Sym");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

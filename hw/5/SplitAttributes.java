@@ -23,6 +23,11 @@ public class SplitAttributes {
 		minSplit = 0;
 	}
 
+	public void identifySplit(List<String> list, String yis) throws IOException {
+        if ("Num".equals(yis)) getNumSplit(list);
+        if ("Sym".equals(yis)) getSymSplit(list);
+    }
+
     public void getSymSplit(List<String> list) throws IOException {
         PriorityQueue<YZ> pq = new PriorityQueue<YZ>(new YZComparator());
         for(String s: list) {
