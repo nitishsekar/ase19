@@ -1,0 +1,5 @@
+Reading file: Numtest.txt
+
+ 1 x.n    10 | x.lo    0.00672  x.hi    0.23944 | y.lo    0.00290  y.hi    0.04958
+ 2 x.n     6 | x.lo    0.40011  x.hi    0.64726 | y.lo    0.40215  y.hi    0.81209
+ 3 x.n     9 | x.lo    0.60153  x.hi    0.84696 | y.lo    0.83327  y.hi    0.89925
