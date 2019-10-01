@@ -11,7 +11,10 @@ public class TestSplitAttributes {
 	public static void main(String[] args) {
 		BufferedReader csvReader;
 		List<String> list = new ArrayList<String>();
-		String fileName = "Symtest.txt";
+		String fileName = "C:\\\\Users\\\\nitis\\\\Desktop\\\\CSC 591 - ASE\\\\HW 5\\\\Numtest.txt";
+		// Uncomment the next line and comment the line above to test Sym 
+		// String fileName = "C:\\\\Users\\\\nitis\\\\Desktop\\\\CSC 591 - ASE\\\\HW 5\\\\Symtest.txt";
+		
 		try {
 			System.out.println("Reading file: "+fileName+"\n");
 			csvReader = new BufferedReader(new FileReader(fileName));
@@ -23,9 +26,9 @@ public class TestSplitAttributes {
 				}
 				csvReader.close();
 				SplitAttributes sc = new SplitAttributes();
-//				sc.getNumSplit(list);
-//				sc.getSymSplit(list);
-				sc.identifySplit(list,"Sym");
+				sc.identifySplit(list,"Num");
+				// Uncomment the next line and comment the line above to test Sym 
+				// sc.identifySplit(list,"Sym");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
