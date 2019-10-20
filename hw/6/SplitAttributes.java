@@ -15,7 +15,8 @@ public class SplitAttributes {
 	private static final float MIN = 0.5f;
 	private static final float DULL = 0.147f;
 	private static final float M = 10^(-64);
-		
+	private List<Integer> indexes;
+
 	public SplitAttributes() {
 		xRanges = new ArrayList<>();
 		yRanges = new ArrayList<>();
@@ -314,4 +315,119 @@ public class SplitAttributes {
             return y;
         }
     }
+
+	static class FeatureSym {
+		public float val;
+		public String label;
+		public int rowIndex;
+
+		public FeatureSym(float val, String label, int rowIndex) {
+			this.val = val;
+			this.label = label;
+			this.rowIndex = rowIndex;
+		}
+
+		public float getVal() {
+			return val;
+		}
+
+		public String getLabel() {
+			return label;
+		}
+
+		public int getRowIndex() {
+			return rowIndex;
+		}
+	}
+
+	static class FeatureNum {
+		public float val;
+		public float label;
+		public int rowIndex;
+
+		public FeatureNum(float val, float label, int rowIndex) {
+			this.val = val;
+			this.label = label;
+			this.rowIndex = rowIndex;
+		}
+
+		public float getVal() {
+			return val;
+		}
+
+		public float getLabel() {
+			return label;
+		}
+
+		public int getRowIndex() {
+			return rowIndex;
+		}
+	}
+
+	static class FeatureSymComparator implements Comparator<FeatureSym> {
+		public int compare(FeatureSym s1, FeatureSym s2) {
+			if (s1.val < s2.val)
+				return -1;
+			else if (s1.val > s2.val)
+				return 1;
+			return 0;
+		}
+	}
+
+	static class FeatureNumComparator implements Comparator<FeatureNum> {
+		public int compare(FeatureNum s1, FeatureNum s2) {
+			if (s1.val < s2.val)
+				return -1;
+			else if (s1.val > s2.val)
+				return 1;
+			return 0;
+		}
+	}
+
+	public void featureSymSplit(Col feature, Col label) throws IOException {
+		feature = (Num)feature;
+		label = (Sym)label;
+		PriorityQueue<FeatureSym> pq = new PriorityQueue<FeatureSym>(new FeatureSymComparator());
+
+		for (int i =0; i < ((Num) feature).getCount(); i++) {
+			FeatureSym featureSym = new FeatureSym(((Num) feature).getValList().get(i).floatValue(), ((Sym) label).getValList().get(i),i);
+			pq.add(featureSym);
+		}
+		Num xNum = new Num();
+		Sym ySym = new Sym();
+		while (!pq.isEmpty()) {
+			FeatureSym featureSym = pq.poll();
+			xNum.updateMeanAndSD(featureSym.getVal());
+			ySym.addSymbol(featureSym.label);
+			indexes.add(featureSym.rowIndex);
+		}
+	}
+
+	public void featureNumSplit(Col feature, Col label) throws IOException {
+		feature = (Num)feature;
+		label = (Num)label;
+		PriorityQueue<FeatureNum> pq = new PriorityQueue<FeatureNum>(new FeatureNumComparator());
+
+		for (int i =0; i < ((Num) feature).getCount(); i++) {
+			FeatureNum featureNum = new FeatureNum(((Num) feature).getValList().get(i).floatValue(), ((Num) label).getValList().get(i).floatValue(),i);
+			pq.add(featureNum);
+		}
+		Num xNum = new Num();
+		Num yNum = new Num();
+		while (!pq.isEmpty()) {
+			FeatureNum featureNum = pq.poll();
+			xNum.updateMeanAndSD(featureNum.getVal());
+			xNum.updateMeanAndSD(featureNum.getLabel());
+			indexes.add(featureNum.rowIndex);
+		}
+	}
+
+	public void identifyFeatureSplit(Col feature, Col label) throws IOException {
+		if (label.getClass() == Sym.class) {
+			featureSymSplit(feature,label);
+		}
+		if (label.getClass() == Num.class) {
+			featureNumSplit(feature,label);
+		}
+	}
 }
