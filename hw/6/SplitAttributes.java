@@ -3,12 +3,13 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.PriorityQueue;
-import java.util.Scanner;
 
 public class SplitAttributes {
-	private List<Num> xRanges;
-	private List<Num> yRanges;
-	private List<Sym> ySymRanges;
+	private List<Col> xRanges;
+	private List<Col> yRanges;
+	
+	// Used when one of the Cols is a Sym (For DT)
+	private List<Col> ySymRanges;
 	private int minSplit;
 	private static final float TRIVIAL = 1.025f;
 	private static final float COHEN = 0.3f;
@@ -16,12 +17,14 @@ public class SplitAttributes {
 	private static final float DULL = 0.147f;
 	private static final float M = 10^(-64);
 	private List<Integer> indices;
+	private List<List<Integer>> indexRanges;
 
 	public SplitAttributes() {
 		xRanges = new ArrayList<>();
 		yRanges = new ArrayList<>();
 		ySymRanges = new ArrayList<>();
 		indices = new ArrayList<>();
+		indexRanges = new ArrayList<>();
 		minSplit = 0;
 	}
 
@@ -211,17 +214,27 @@ public class SplitAttributes {
 		}
     }
    
-    public void findSymNumSplits(Sym x, Num y) {
+    // Method for recursive feature splits for DT
+    public void findSymNumSplits(Sym x, Num y, List<Integer> indices) {
     	try {
     		Sym xR = new Sym(x);
 			Num yR = new Num(y);
 			Sym xL = new Sym();
 			Num yL = new Num();
+			List<Integer> indL = new ArrayList<>();
+			List<Integer> indR = new ArrayList<>();
+			for(int i:indices) {
+				indR.add(i);
+			}
 			
 			Sym cutXR = new Sym();
 			Num cutYR = new Num();
 			Sym cutXL = new Sym();
 			Num cutYL = new Num();
+			
+			List<Integer> cutIndL = new ArrayList<>();
+			List<Integer> cutIndR = new ArrayList<>();
+			
 			
 			Double best = y.getStdDev();
 			int n = yR.getCount();
@@ -237,6 +250,8 @@ public class SplitAttributes {
 					xL.addSymbol(val);
 					float yVal = yR.deleteFirstNum();
 					yL.updateMeanAndSD(yVal);
+					int indVal = indR.remove(0);
+					indL.add(indVal);
 					if(i > minSplit-1) {
 						if(yVal == yR.getValList().get(0)) continue;
 						// Check if a cut satisfies all criteria
@@ -252,7 +267,14 @@ public class SplitAttributes {
 									cutXR = new Sym(xR);
 									cutYL = new Num(yL);
 									cutYR = new Num(yR);
-									
+									cutIndL = new ArrayList<>();
+									for(int k:indL) {
+										cutIndL.add(k);
+									}
+									cutIndR = new ArrayList<>();
+									for(int k:indR) {
+										cutIndR.add(k);
+									}
 								}
 							}
 						}
@@ -261,12 +283,13 @@ public class SplitAttributes {
 			}
 			if(cut) {
 				// Recurse if cut exists
-				findSymNumSplits(cutXL, cutYL);
-				findSymNumSplits(cutXR, cutYR);
+				findSymNumSplits(cutXL, cutYL, cutIndL);
+				findSymNumSplits(cutXR, cutYR, cutIndR);
 			} else {
 				// Else, record the split
 				ySymRanges.add(x);
 				xRanges.add(y);
+				indexRanges.add(indices);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -275,8 +298,8 @@ public class SplitAttributes {
     
     public void printSplits() {
     	for(int i=0; i<xRanges.size(); i++) {
-    		Num x = xRanges.get(i);
-    		Num y = yRanges.get(i);
+    		Num x = (Num) xRanges.get(i);
+    		Num y = (Num) yRanges.get(i);
     		System.out.println(String.format(" %d x.n %5d | x.lo %10.5f  x.hi %10.5f | y.lo %10.5f  y.hi %10.5f", 
     				i+1, 
     				x.getCount(), 
@@ -289,8 +312,8 @@ public class SplitAttributes {
 
 	public void printSymSplits() {
 		for(int i=0; i<xRanges.size(); i++) {
-			Num x = xRanges.get(i);
-			Sym y = ySymRanges.get(i);
+			Num x = (Num) xRanges.get(i);
+			Sym y = (Sym) ySymRanges.get(i);
 			System.out.println(String.format(" %d x.n %5d | x.lo %10.5f  x.hi %10.5f  sd %10.5f | y.mode %s  y.ent %10.5f",
 					i+1,
 					x.getCount(),
@@ -467,8 +490,8 @@ public class SplitAttributes {
 			ySym.addSymbol(featureSym.label);
 			indices.add(featureSym.rowIndex);
 		}
-		findSymNumSplits(ySym, xNum);
-	    printSymSplits();
+		findSymNumSplits(ySym, xNum, indices);
+	    // printSymSplits();
 	}
 
 	public void featureNumSplit(Col feature, Col label) throws IOException {
@@ -489,19 +512,21 @@ public class SplitAttributes {
 			indices.add(featureNum.rowIndex);
 		}
 		findNumSplits(xNum, yNum);
-	    printSplits();
+	    // printSplits();
 	}
 
 	// Function to be called for Decision Tree Generation
-	public void identifyFeatureSplit(Col label, Col feature) throws IOException {
+	public SplitAttributesResponse identifyFeatureSplit(Col label, Col feature) throws IOException {
 		int size = ((Num) feature).getCount();
 		minSplit = (int) Math.sqrt(size);
 	      
 		if (label.getClass() == Sym.class) {
 			featureSymSplit(feature,label);
-		}
-		if (label.getClass() == Num.class) {
+			return new SplitAttributesResponse(ySymRanges, xRanges, indexRanges);
+		} else if (label.getClass() == Num.class) {
 			featureNumSplit(feature,label);
+			return new SplitAttributesResponse(yRanges, xRanges, indexRanges);
 		}
+		return null;
 	}
 }
