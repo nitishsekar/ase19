@@ -144,13 +144,15 @@ public class Tbl {
 	
 	public void deleteRow(int j) throws IOException {
 		rows.remove(j);
-		for(int i=0; i<cols.size(); i++) {
+		int size = cols.size();
+		for(int i=0; i<size; i++) {
 			Col c = cols.get(i);
 			if(c.getClass() == Num.class) {
 				((Num) c).deleteIthNum(j);
 			} else if(c.getClass() == Sym.class) {
 				((Sym) c).deleteIthSym(j);
 			}
+			cols.remove(i);
 			cols.add(i, c);
 		}
 	}

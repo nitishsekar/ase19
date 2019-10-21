@@ -5,9 +5,7 @@ import java.util.Set;
 public class DecisionTreeGenerator {
 	public void createDecisionTree(Tbl tbl) {
 		Set<Integer> s = new HashSet<>();
-		s.add(5);
-		s.add(4);
-		s.add(2);
+		
 		recurse(tbl, s);
 	}
 	
@@ -17,7 +15,7 @@ public class DecisionTreeGenerator {
 		int count = newTbl.getRowCount();
 		while(i < count) {
 			// Delete rows from the table if index not in Set rows
-			if(!rows.contains(i)) {
+			if(rows.contains(i)) {
 				try {
 					newTbl.deleteRow(i-adj);
 					adj++;
@@ -27,6 +25,12 @@ public class DecisionTreeGenerator {
 			}
 			i++;
 		}
-		newTbl.dump();
+		//newTbl.dump();
+		SplitAttributes sAtt = new SplitAttributes();
+		try {
+			sAtt.identifyFeatureSplit(newTbl.getCols().get(newTbl.getCols().size()-1), newTbl.getCols().get(1));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

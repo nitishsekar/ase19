@@ -118,7 +118,7 @@ public class Num extends Col implements Cloneable {
     }
 	
 	public float deleteIthNum(int i) throws IOException {
-        Float arg = valList.get(i);
+		Float arg = valList.get(i);
         valList.remove(i);
         prevSum-=arg;
         count--;

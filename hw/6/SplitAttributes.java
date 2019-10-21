@@ -15,12 +15,13 @@ public class SplitAttributes {
 	private static final float MIN = 0.5f;
 	private static final float DULL = 0.147f;
 	private static final float M = 10^(-64);
-	private List<Integer> indexes;
+	private List<Integer> indices;
 
 	public SplitAttributes() {
 		xRanges = new ArrayList<>();
 		yRanges = new ArrayList<>();
 		ySymRanges = new ArrayList<>();
+		indices = new ArrayList<>();
 		minSplit = 0;
 	}
 
@@ -141,6 +142,9 @@ public class SplitAttributes {
     }
     
     public void findSymSplits(Num x, Sym y) {
+    	System.out.println("X "+x.getValList());
+    	System.out.println("Y "+y.getValList());
+    	
     	try {
 			Num xR = new Num(x);
 			Sym yR = new Sym(y);
@@ -207,6 +211,67 @@ public class SplitAttributes {
 		}
     }
    
+    public void findSymNumSplits(Sym x, Num y) {
+    	try {
+    		Sym xR = new Sym(x);
+			Num yR = new Num(y);
+			Sym xL = new Sym();
+			Num yL = new Num();
+			
+			Sym cutXR = new Sym();
+			Num cutYR = new Num();
+			Sym cutXL = new Sym();
+			Num cutYL = new Num();
+			
+			Double best = y.getStdDev();
+			int n = yR.getCount();
+			float epsilon = (float) (COHEN*y.getStdDev());
+			boolean cut = false;
+			int cutLoc = -1;
+			List<Float> list = y.getValList();
+			float start = list.get(0);
+			float stop = list.get(list.size()-1);
+			for(int i=0; i<n; i++) {
+				if(n-i-1 >= minSplit) {
+					String val = xR.deleteFirstSym();
+					xL.addSymbol(val);
+					float yVal = yR.deleteFirstNum();
+					yL.updateMeanAndSD(yVal);
+					if(i > minSplit-1) {
+						if(yVal == yR.getValList().get(0)) continue;
+						// Check if a cut satisfies all criteria
+						if(Math.abs(yL.getMean() - yR.getMean()) >= epsilon) {
+							if((yR.getValList().get(0)-start >= epsilon) &&
+								(stop-yVal >= epsilon)){
+								Double expect = expectedValue(yL, yR);
+								if(expect*TRIVIAL < best) {
+									best = expect;
+									cut = true;
+									cutLoc = i;
+									cutXL = new Sym(xL);
+									cutXR = new Sym(xR);
+									cutYL = new Num(yL);
+									cutYR = new Num(yR);
+									
+								}
+							}
+						}
+					}
+				}
+			}
+			if(cut) {
+				// Recurse if cut exists
+				findSymNumSplits(cutXL, cutYL);
+				findSymNumSplits(cutXR, cutYR);
+			} else {
+				// Else, record the split
+				ySymRanges.add(x);
+				xRanges.add(y);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    }
     
     public void printSplits() {
     	for(int i=0; i<xRanges.size(); i++) {
@@ -226,11 +291,12 @@ public class SplitAttributes {
 		for(int i=0; i<xRanges.size(); i++) {
 			Num x = xRanges.get(i);
 			Sym y = ySymRanges.get(i);
-			System.out.println(String.format(" %d x.n %5d | x.lo %10.5f  x.hi %10.5f | y.mode %s  y.ent %10.5f",
+			System.out.println(String.format(" %d x.n %5d | x.lo %10.5f  x.hi %10.5f  sd %10.5f | y.mode %s  y.ent %10.5f",
 					i+1,
 					x.getCount(),
 					x.getLow(),
 					x.getHi(),
+					x.getStdDev(),
 					y.getMode(),
 					y.getEntropy()));
 		}
@@ -399,8 +465,10 @@ public class SplitAttributes {
 			FeatureSym featureSym = pq.poll();
 			xNum.updateMeanAndSD(featureSym.getVal());
 			ySym.addSymbol(featureSym.label);
-			indexes.add(featureSym.rowIndex);
+			indices.add(featureSym.rowIndex);
 		}
+		findSymNumSplits(ySym, xNum);
+	    printSymSplits();
 	}
 
 	public void featureNumSplit(Col feature, Col label) throws IOException {
@@ -418,11 +486,17 @@ public class SplitAttributes {
 			FeatureNum featureNum = pq.poll();
 			xNum.updateMeanAndSD(featureNum.getVal());
 			xNum.updateMeanAndSD(featureNum.getLabel());
-			indexes.add(featureNum.rowIndex);
+			indices.add(featureNum.rowIndex);
 		}
+		findNumSplits(xNum, yNum);
+	    printSplits();
 	}
 
-	public void identifyFeatureSplit(Col feature, Col label) throws IOException {
+	// Function to be called for Decision Tree Generation
+	public void identifyFeatureSplit(Col label, Col feature) throws IOException {
+		int size = ((Num) feature).getCount();
+		minSplit = (int) Math.sqrt(size);
+	      
 		if (label.getClass() == Sym.class) {
 			featureSymSplit(feature,label);
 		}
