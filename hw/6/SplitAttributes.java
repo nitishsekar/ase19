@@ -27,6 +27,15 @@ public class SplitAttributes {
 		indexRanges = new ArrayList<>();
 		minSplit = 0;
 	}
+	
+	public void clear() {
+		xRanges = new ArrayList<>();
+		yRanges = new ArrayList<>();
+		ySymRanges = new ArrayList<>();
+		indices = new ArrayList<>();
+		indexRanges = new ArrayList<>();
+		minSplit = 0;
+	}
 
 	public void identifySplit(List<String> list, String yis) throws IOException {
         if ("Num".equals(yis)) getNumSplit(list);
@@ -100,6 +109,7 @@ public class SplitAttributes {
 			boolean cut = false;
 			int cutLoc = -1;
 			List<Float> list = y.getValList();
+			//System.out.println("DEBUG: "+list);
 			float start = list.get(0);
 			float stop = list.get(list.size()-1);
 			for(int i=0; i<n; i++) {
@@ -116,6 +126,7 @@ public class SplitAttributes {
 								(stop-yVal >= epsilon)){
 								Double expect = expectedValue(yL, yR);
 								if(expect*TRIVIAL < best) {
+									//System.out.println("DEBUG: Best:"+best+", new Best:"+expect+", Cut:"+i);
 									best = expect;
 									cut = true;
 									cutLoc = i;
@@ -145,9 +156,6 @@ public class SplitAttributes {
     }
     
     public void findSymSplits(Num x, Sym y) {
-    	System.out.println("X "+x.getValList());
-    	System.out.println("Y "+y.getValList());
-    	
     	try {
 			Num xR = new Num(x);
 			Sym yR = new Sym(y);
@@ -341,12 +349,13 @@ public class SplitAttributes {
     
     private Double expectedValue(Num l, Num r) {
     	int n = l.getCount() + r.getCount();
-    	return (((l.getCount()/n*l.getStdDev()) + (r.getCount()/n*r.getStdDev())));
+    	//return (((l.getCount()/n*l.getStdDev()) + (r.getCount()/n*r.getStdDev())));
+    	return (((float)l.getCount()/n)*l.getStdDev() + ((float)r.getCount()/n)*r.getStdDev());
     }
 
 	private Double expectedValueSym(Sym l, Sym r) {
 		int n = l.getCount() + r.getCount();
-		return ((l.getCount()/(n * (l.getEntropy()+M))) + (r.getCount()/(n * (r.getEntropy()+M))));
+		return ((l.getCount()/n * (l.getEntropy()+M)) + (r.getCount()/n * (r.getEntropy()+M)));
 	}
 
 	public int getASCII(String string) {
@@ -491,7 +500,7 @@ public class SplitAttributes {
 			indices.add(featureSym.rowIndex);
 		}
 		findSymNumSplits(ySym, xNum, indices);
-	    // printSymSplits();
+		//printSymSplits();
 	}
 
 	public void featureNumSplit(Col feature, Col label) throws IOException {
@@ -522,10 +531,10 @@ public class SplitAttributes {
 	      
 		if (label.getClass() == Sym.class) {
 			featureSymSplit(feature,label);
-			return new SplitAttributesResponse(ySymRanges, xRanges, indexRanges);
+			return new SplitAttributesResponse(xRanges, ySymRanges, indexRanges);
 		} else if (label.getClass() == Num.class) {
 			featureNumSplit(feature,label);
-			return new SplitAttributesResponse(yRanges, xRanges, indexRanges);
+			return new SplitAttributesResponse(xRanges, yRanges, indexRanges);
 		}
 		return null;
 	}

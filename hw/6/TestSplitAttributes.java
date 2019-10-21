@@ -11,7 +11,7 @@ public class TestSplitAttributes {
 	public static void main(String[] args) {
 		BufferedReader csvReader;
 		List<String> list = new ArrayList<String>();
-		String fileName = "C:\\\\Users\\\\nitis\\\\Desktop\\\\CSC 591 - ASE\\\\HW 5\\\\Numtest.txt";
+		String fileName = "C:\\\\Users\\\\nitis\\\\Desktop\\\\CSC 591 - ASE\\\\HW 6\\\\test.diab.csv";
 		// Uncomment the next line and comment the line above to test Sym 
 		// String fileName = "C:\\\\Users\\\\nitis\\\\Desktop\\\\CSC 591 - ASE\\\\HW 5\\\\Symtest.txt";
 		

@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 
 public class SplitAttributesResponse {
@@ -9,6 +10,12 @@ public class SplitAttributesResponse {
 		this.featureRanges = featureRanges;
 		this.labelRanges = labelRanges;
 		this.indicesLists = indicesLists;
+	}
+	
+	public SplitAttributesResponse() {
+		this.featureRanges = new ArrayList<>();
+		this.labelRanges = new ArrayList<>();
+		this.indicesLists = new ArrayList<>();
 	}
 	
 	public List<Col> getFeatureRanges() {

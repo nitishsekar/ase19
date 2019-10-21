@@ -25,17 +25,13 @@ public class TestNum {
         System.out.println(num.getCount());
         
         */
-        num.updateMeanAndSD(2.0f);
-        num.updateMeanAndSD(4.0f);
-        System.out.println(num.getMean());
-        try {
-			Num n2 = (Num)num.clone();
-			n2.updateMeanAndSD(9.0f);
-	        System.out.println(num.getMean());
-	        System.out.println(n2.getMean());
-		} catch (CloneNotSupportedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        for (int i = 0; i < 10; i++) {
+            num.updateMeanAndSD((float)i);
+        }
+        System.out.println(num.getStdDev());
+        for (int i = 9; i >= 5; i--) {
+            num.deleteIthNum(i);
+        }
+        System.out.println(num.getStdDev());
     }
 }

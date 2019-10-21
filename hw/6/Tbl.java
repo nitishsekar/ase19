@@ -29,8 +29,14 @@ public class Tbl {
 	}
 	
 	public Tbl(Tbl tbl) {
-		this.rows = tbl.rows;
-		this.cols = tbl.cols;
+		this.rows = new ArrayList<>();
+		for(int i=0; i<tbl.rows.size(); i++) {
+			this.rows.add(tbl.rows.get(i));
+		}
+    	this.cols = new ArrayList<>();
+    	for(int i=0; i<tbl.cols.size(); i++) {
+			this.cols.add(tbl.cols.get(i));
+		}
 		this.file = tbl.file;
 		this.ignoreCol = tbl.ignoreCol;
 		this.symCols = tbl.symCols;
