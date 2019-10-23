@@ -21,6 +21,7 @@ public class Sym extends Col{
     }
     
     public Sym(Sym sym) {
+    	super(sym);
     	this.words = new ArrayList<>();
     	for(String s:sym.words) this.words.add(s);
     	this.colMap = new HashMap<>();

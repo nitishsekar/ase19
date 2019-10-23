@@ -8,6 +8,13 @@ public class Row {
 		cells = new ArrayList<String>();
 	}
 	
+	public Row(Row r) {
+		this.cells = new ArrayList<>();
+		for(String s:r.cells) {
+			this.cells.add(s);
+		}
+	}
+	
 	public void addCell(Integer cell) {
 		cells.add(cell.toString());
 	}

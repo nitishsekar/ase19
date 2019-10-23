@@ -31,13 +31,18 @@ public class Tbl {
 	public Tbl(Tbl tbl) {
 		this.rows = new ArrayList<>();
 		for(int i=0; i<tbl.rows.size(); i++) {
-			this.rows.add(tbl.rows.get(i));
+			this.rows.add(new Row(tbl.rows.get(i)));
 		}
     	this.cols = new ArrayList<>();
     	for(int i=0; i<tbl.cols.size(); i++) {
-			this.cols.add(tbl.cols.get(i));
+    		Col c = tbl.cols.get(i);
+    		if(c.getClass() == Num.class) {
+    			this.cols.add(new Num((Num) c));
+    		} else if(c.getClass() == Sym.class) {
+    			this.cols.add(new Sym((Sym) c));
+    		}
 		}
-		this.file = tbl.file;
+    	this.file = tbl.file;
 		this.ignoreCol = tbl.ignoreCol;
 		this.symCols = tbl.symCols;
 		this.my = tbl.my;

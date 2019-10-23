@@ -21,11 +21,12 @@ public class Num extends Col implements Cloneable {
         sdList = new ArrayList<>();
         prevSum = 0.0f;
         count = 0;
-        hi = Float.MIN_VALUE;
+        hi = -Float.MAX_VALUE;
         low = Float.MAX_VALUE;
     }
     
     public Num(Num num) {
+    	super(num);
     	this.valList = new ArrayList<>();
     	for(Float f:num.valList) this.valList.add(f);
     	this.meanList = new ArrayList<>();
@@ -55,8 +56,13 @@ public class Num extends Col implements Cloneable {
         valList.add(arg);
         count++;
         prevSum += arg;
-        if(arg > hi) hi = arg;
-        if(arg < low) low = arg;
+        if(arg > hi) {
+        	hi = arg;
+        }
+        if(arg < low) {
+        	low = arg;
+        }
+        
         mean = generateMean(prevSum, count);
         stdDev = generateSD(valList, mean, count);
         //System.out.println("ValList: "+valList+", mean: "+mean+", count: "+count);

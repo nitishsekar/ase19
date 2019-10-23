@@ -18,6 +18,7 @@ public class SplitAttributes {
 	private static final float M = 10^(-64);
 	private List<Integer> indices;
 	private List<List<Integer>> indexRanges;
+	private float epsilon;
 
 	public SplitAttributes() {
 		xRanges = new ArrayList<>();
@@ -26,6 +27,7 @@ public class SplitAttributes {
 		indices = new ArrayList<>();
 		indexRanges = new ArrayList<>();
 		minSplit = 0;
+		epsilon = 0;
 	}
 	
 	public void clear() {
@@ -35,6 +37,7 @@ public class SplitAttributes {
 		indices = new ArrayList<>();
 		indexRanges = new ArrayList<>();
 		minSplit = 0;
+		epsilon = 0;
 	}
 
 	public void identifySplit(List<String> list, String yis) throws IOException {
@@ -44,17 +47,12 @@ public class SplitAttributes {
 
     public void getSymSplit(List<String> list) throws IOException {
         PriorityQueue<YZ> pq = new PriorityQueue<YZ>(new YZComparator());
+        minSplit = (int) Math.sqrt(list.size());
         for(String s: list) {
         	String[] strings = s.replaceAll("[\\[\\]]","").split(",");
             YZ yz = new YZ(Float.valueOf(strings[0].trim()), strings[1].trim().replaceAll("[\\']", ""));
             pq.add(yz);
         }
-        /*
-        while (!pq.isEmpty()) {
-            YZ yz = pq.poll();
-            System.out.println(yz.getY()+","+yz.getZ());
-        }
-        */
         Num xNum = new Num();
         Sym ySym = new Sym();
         while (!pq.isEmpty()) {
@@ -62,6 +60,7 @@ public class SplitAttributes {
             xNum.updateMeanAndSD(yz.getY());
             ySym.addSymbol(yz.getZ());
         }
+        epsilon = (float) (COHEN*ySym.getEntropy());
         findSymSplits(xNum, ySym);
         printSymSplits();
     }
@@ -74,12 +73,6 @@ public class SplitAttributes {
           XY xy = new XY(Float.valueOf(strings[0]), Float.valueOf(strings[1]));
           pq.add(xy);
       }
-      /*
-      while (!pq.isEmpty()) {
-          XY xy = pq.poll();
-          System.out.println(xy.getX()+","+xy.getY());
-      }
-      */
       Num xNum = new Num();
       Num yNum = new Num();
       while (!pq.isEmpty()) {
@@ -87,6 +80,7 @@ public class SplitAttributes {
           xNum.updateMeanAndSD(xy.getX());
           yNum.updateMeanAndSD(xy.getY());
       }
+      epsilon = (float) (COHEN*yNum.getStdDev());
       findNumSplits(xNum, yNum);
       printSplits();
     }
@@ -105,11 +99,10 @@ public class SplitAttributes {
 			
 			Double best = y.getStdDev();
 			int n = yR.getCount();
-			float epsilon = (float) (COHEN*y.getStdDev());
+			
 			boolean cut = false;
 			int cutLoc = -1;
 			List<Float> list = y.getValList();
-			//System.out.println("DEBUG: "+list);
 			float start = list.get(0);
 			float stop = list.get(list.size()-1);
 			for(int i=0; i<n; i++) {
@@ -122,21 +115,21 @@ public class SplitAttributes {
 						if(yVal == yR.getValList().get(0)) continue;
 						// Check if a cut satisfies all criteria
 						if(Math.abs(yL.getMean() - yR.getMean()) >= epsilon) {
-							if((yR.getValList().get(0)-start >= epsilon) &&
-								(stop-yVal >= epsilon)){
-								Double expect = expectedValue(yL, yR);
-								if(expect*TRIVIAL < best) {
-									//System.out.println("DEBUG: Best:"+best+", new Best:"+expect+", Cut:"+i);
-									best = expect;
-									cut = true;
-									cutLoc = i;
-									cutXL = new Num(xL);
-									cutXR = new Num(xR);
-									cutYL = new Num(yL);
-									cutYR = new Num(yR);
-									
+							if((yR.getValList().get(0)-start >= epsilon))
+								if(stop-yVal >= epsilon){
+									Double expect = expectedValue(yL, yR);
+									if(expect*TRIVIAL < best) {
+										//System.out.println("DEBUG: Best:"+best+", new Best:"+expect+", Cut:"+i);
+										best = expect;
+										cut = true;
+										cutLoc = i;
+										cutXL = new Num(xL);
+										cutXR = new Num(xR);
+										cutYL = new Num(yL);
+										cutYR = new Num(yR);
+										
+									}
 								}
-							}
 						}
 					}
 				}
@@ -169,7 +162,6 @@ public class SplitAttributes {
 			
 			Double best = y.getEntropy();
 			int n = yR.getTotalCount();
-			float epsilon = (float) (COHEN*y.getEntropy());
 			boolean cut = false;
 			int cutLoc = -1;
 			List<String> list = y.getWords();
@@ -184,9 +176,6 @@ public class SplitAttributes {
 					if(i > minSplit-1) {
 						if (yR.totalCount != 0) {
 							if(yVal.equals(yR.getWords().get(0))) continue;
-
-							/* Modify code from here onwards */
-
 							// Check if a cut satisfies all criteria
 							if(Math.abs(getASCII(yL.getMode()) - getASCII(yR.getMode())) >= epsilon) {
 								if((getASCII(yR.getValList().get(0)) - getASCII(start) >= epsilon) &&
@@ -246,7 +235,6 @@ public class SplitAttributes {
 			
 			Double best = y.getStdDev();
 			int n = yR.getCount();
-			float epsilon = (float) (COHEN*y.getStdDev());
 			boolean cut = false;
 			int cutLoc = -1;
 			List<Float> list = y.getValList();
@@ -308,13 +296,14 @@ public class SplitAttributes {
     	for(int i=0; i<xRanges.size(); i++) {
     		Num x = (Num) xRanges.get(i);
     		Num y = (Num) yRanges.get(i);
-    		System.out.println(String.format(" %d x.n %5d | x.lo %10.5f  x.hi %10.5f | y.lo %10.5f  y.hi %10.5f", 
+    		System.out.println(String.format(" %d x.n %5d | x.lo %10.5f  x.hi %10.5f | y.lo %10.5f  y.hi %10.5f  y.sd %10.5f", 
     				i+1, 
     				x.getCount(), 
     				x.getLow(), 
     				x.getHi(), 
     				y.getLow(), 
-    				y.getHi()));
+    				y.getHi(),
+    				y.getStdDev()));
     		}
     }
 
@@ -499,6 +488,7 @@ public class SplitAttributes {
 			ySym.addSymbol(featureSym.label);
 			indices.add(featureSym.rowIndex);
 		}
+		epsilon = (float) (COHEN*xNum.getStdDev());
 		findSymNumSplits(ySym, xNum, indices);
 		//printSymSplits();
 	}
@@ -520,6 +510,7 @@ public class SplitAttributes {
 			xNum.updateMeanAndSD(featureNum.getLabel());
 			indices.add(featureNum.rowIndex);
 		}
+		epsilon = (float) (COHEN*yNum.getStdDev());
 		findNumSplits(xNum, yNum);
 	    // printSplits();
 	}

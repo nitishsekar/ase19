@@ -4,6 +4,26 @@ public class Col {
 	private String txt;
 	private int pos;
 	
+	public Col() {
+		int oid = -1;
+		String txt = "";
+		int pos = -1;
+	}
+	
+	public Col(Sym s) {
+		Col c = (Col) s;
+		this.oid = c.oid;
+		this.txt = c.txt;
+		this.pos = c.pos;
+	}
+	
+	public Col(Num n) {
+		Col c = (Num) n;
+		this.oid = c.oid;
+		this.txt = c.txt;
+		this.pos = c.pos;
+	}
+	
 	public int getPos() {
 		return pos;
 	}

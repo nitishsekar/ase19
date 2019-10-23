@@ -25,13 +25,9 @@ public class TestNum {
         System.out.println(num.getCount());
         
         */
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 1; i++) {
             num.updateMeanAndSD((float)i);
         }
-        System.out.println(num.getStdDev());
-        for (int i = 9; i >= 5; i--) {
-            num.deleteIthNum(i);
-        }
-        System.out.println(num.getStdDev());
+        System.out.println(num.getLow()+" "+num.getHi());
     }
 }
