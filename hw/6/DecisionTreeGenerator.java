@@ -13,6 +13,8 @@ public class DecisionTreeGenerator {
 		finalDT.setLevel(0);
 		finalDT.makeRoot();
 		finalDT.printTree(finalDT);
+		finalDT = finalDT.pruneTree(finalDT);
+		finalDT.printTree(finalDT);
 	}
 	
 	private DecisionTree recurse(Tbl tbl, Set<Integer> rows, int level) {
