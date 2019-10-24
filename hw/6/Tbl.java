@@ -191,7 +191,7 @@ public class Tbl {
 		}
 	}
 	
-	public void read(String fileName) {
+	public String read(String fileName) {
 		BufferedReader csvReader;
 		try {
 			System.out.println("Reading file: "+fileName);
@@ -231,6 +231,7 @@ public class Tbl {
 			e1.printStackTrace();
 		}
 		parseFile();
+		return cols.get(cols.size()-1).getClass().toString();
 	}
 	
 	public void dump() {

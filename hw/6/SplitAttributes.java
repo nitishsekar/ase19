@@ -64,92 +64,8 @@ public class SplitAttributes {
         findSymSplits(xNum, ySym);
         printSymSplits();
     }
-    
-    public void getNumSplit(List<String> list) throws IOException {
-      PriorityQueue<XY> pq = new PriorityQueue<XY>(new XYComparator());
-      minSplit = (int) Math.sqrt(list.size());
-      for(String s: list) {
-      	String[] strings = s.replaceAll("[\\[\\]]","").split(",");
-          XY xy = new XY(Float.valueOf(strings[0]), Float.valueOf(strings[1]));
-          pq.add(xy);
-      }
-      Num xNum = new Num();
-      Num yNum = new Num();
-      while (!pq.isEmpty()) {
-          XY xy = pq.poll();
-          xNum.updateMeanAndSD(xy.getX());
-          yNum.updateMeanAndSD(xy.getY());
-      }
-      epsilon = (float) (COHEN*yNum.getStdDev());
-      findNumSplits(xNum, yNum);
-      printSplits();
-    }
-
-    public void findNumSplits(Num x, Num y) {
-    	try {
-			Num xR = new Num(x);
-			Num yR = new Num(y);
-			Num xL = new Num();
-			Num yL = new Num();
-			
-			Num cutXR = new Num();
-			Num cutYR = new Num();
-			Num cutXL = new Num();
-			Num cutYL = new Num();
-			
-			Double best = y.getStdDev();
-			int n = yR.getCount();
-			
-			boolean cut = false;
-			int cutLoc = -1;
-			List<Float> list = y.getValList();
-			float start = list.get(0);
-			float stop = list.get(list.size()-1);
-			for(int i=0; i<n; i++) {
-				if(n-i-1 >= minSplit) {
-					float val = xR.deleteFirstNum();
-					xL.updateMeanAndSD(val);
-					float yVal = yR.deleteFirstNum();
-					yL.updateMeanAndSD(yVal);
-					if(i > minSplit-1) {
-						if(yVal == yR.getValList().get(0)) continue;
-						// Check if a cut satisfies all criteria
-						if(Math.abs(yL.getMean() - yR.getMean()) >= epsilon) {
-							if((yR.getValList().get(0)-start >= epsilon))
-								if(stop-yVal >= epsilon){
-									Double expect = expectedValue(yL, yR);
-									if(expect*TRIVIAL < best) {
-										//System.out.println("DEBUG: Best:"+best+", new Best:"+expect+", Cut:"+i);
-										best = expect;
-										cut = true;
-										cutLoc = i;
-										cutXL = new Num(xL);
-										cutXR = new Num(xR);
-										cutYL = new Num(yL);
-										cutYR = new Num(yR);
-										
-									}
-								}
-						}
-					}
-				}
-			}
-			if(cut) {
-				// Recurse if cut exists
-				findNumSplits(cutXL, cutYL);
-				findNumSplits(cutXR, cutYR);
-			} else {
-				// Else, record the split
-				xRanges.add(x);
-				yRanges.add(y);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-    }
-    
-    public void findSymSplits(Num x, Sym y) {
-    	try {
+	public void findSymSplits(Num x, Sym y) {
+		try {
 			Num xR = new Num(x);
 			Sym yR = new Sym(y);
 			Num xL = new Num();
@@ -159,7 +75,7 @@ public class SplitAttributes {
 			Sym cutYR = new Sym();
 			Num cutXL = new Num();
 			Sym cutYL = new Sym();
-			
+
 			Double best = y.getEntropy();
 			int n = yR.getTotalCount();
 			boolean cut = false;
@@ -209,10 +125,193 @@ public class SplitAttributes {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+    public void getNumSplit(List<String> list) throws IOException {
+      PriorityQueue<XY> pq = new PriorityQueue<XY>(new XYComparator());
+      minSplit = (int) Math.sqrt(list.size());
+      for(String s: list) {
+      	String[] strings = s.replaceAll("[\\[\\]]","").split(",");
+          XY xy = new XY(Float.valueOf(strings[0]), Float.valueOf(strings[1]));
+          pq.add(xy);
+      }
+      Num xNum = new Num();
+      Num yNum = new Num();
+      while (!pq.isEmpty()) {
+          XY xy = pq.poll();
+          xNum.updateMeanAndSD(xy.getX());
+          yNum.updateMeanAndSD(xy.getY());
+      }
+      epsilon = (float) (COHEN*yNum.getStdDev());
+      findFeatureNumLabelNumSplits(xNum, yNum, indices);
+      printSplits();
+    }
+
+    public void findFeatureNumLabelNumSplits(Num x, Num y, List<Integer> indices) {
+    	try {
+			Num xR = new Num(x);
+			Num yR = new Num(y);
+			Num xL = new Num();
+			Num yL = new Num();
+
+			List<Integer> indL = new ArrayList<>();
+			List<Integer> indR = new ArrayList<>();
+			for(int i:indices) {
+				indR.add(i);
+			}
+
+			Num cutXR = new Num();
+			Num cutYR = new Num();
+			Num cutXL = new Num();
+			Num cutYL = new Num();
+
+			List<Integer> cutIndL = new ArrayList<>();
+			List<Integer> cutIndR = new ArrayList<>();
+			
+			Double best = y.getStdDev();
+			int n = yR.getCount();
+			
+			boolean cut = false;
+			int cutLoc = -1;
+			List<Float> list = y.getValList();
+			float start = list.get(0);
+			float stop = list.get(list.size()-1);
+			for(int i=0; i<n; i++) {
+				if(n-i-1 >= minSplit) {
+					float val = xR.deleteFirstNum();
+					xL.updateMeanAndSD(val);
+					float yVal = yR.deleteFirstNum();
+					yL.updateMeanAndSD(yVal);
+					int indVal = indR.remove(0);
+					indL.add(indVal);
+					if(i > minSplit-1) {
+						if(yVal == yR.getValList().get(0)) continue;
+						// Check if a cut satisfies all criteria
+						if(Math.abs(yL.getMean() - yR.getMean()) >= epsilon) {
+							if((yR.getValList().get(0)-start >= epsilon))
+								if(stop-yVal >= epsilon){
+									Double expect = expectedValue(yL, yR);
+									if(expect*TRIVIAL < best) {
+										//System.out.println("DEBUG: Best:"+best+", new Best:"+expect+", Cut:"+i);
+										best = expect;
+										cut = true;
+										cutLoc = i;
+										cutXL = new Num(xL);
+										cutXR = new Num(xR);
+										cutYL = new Num(yL);
+										cutYR = new Num(yR);
+										cutIndL = new ArrayList<>();
+										for(int k:indL) {
+											cutIndL.add(k);
+										}
+										cutIndR = new ArrayList<>();
+										for(int k:indR) {
+											cutIndR.add(k);
+										}
+									}
+								}
+						}
+					}
+				}
+			}
+			if(cut) {
+				// Recurse if cut exists
+				findFeatureNumLabelNumSplits(cutXL, cutYL, cutIndL);
+				findFeatureNumLabelNumSplits(cutXR, cutYR, cutIndR);
+			} else {
+				// Else, record the split
+				xRanges.add(x);
+				yRanges.add(y);
+				indexRanges.add(indices);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    }
+    
+    public void findFeatureSymLabelNumSplits(Num x, Sym y, List<Integer> indices) {
+    	try {
+			Num xR = new Num(x);
+			Sym yR = new Sym(y);
+			Num xL = new Num();
+			Sym yL = new Sym();
+			List<Integer> indL = new ArrayList<>();
+			List<Integer> indR = new ArrayList<>();
+			for(int i:indices) {
+				indR.add(i);
+			}
+
+			Num cutXR = new Num();
+			Sym cutYR = new Sym();
+			Num cutXL = new Num();
+			Sym cutYL = new Sym();
+
+			List<Integer> cutIndL = new ArrayList<>();
+			List<Integer> cutIndR = new ArrayList<>();
+			
+			Double best = y.getEntropy();
+			int n = yR.getTotalCount();
+			boolean cut = false;
+			int cutLoc = -1;
+			List<String> list = y.getWords();
+			String start = list.get(0);
+			String stop = list.get(list.size()-1);
+			for(int i=0; i<n; i++) {
+				if(n-i-1 >= minSplit) {
+					float val = xR.deleteFirstNum();
+					xL.updateMeanAndSD(val);
+					String yVal = yR.deleteFirstSym();
+					yL.addSymbol(yVal);
+					int indVal = indR.remove(0);
+					indL.add(indVal);
+					if(i > minSplit-1) {
+						if (yR.totalCount != 0) {
+							if(yVal.equals(yR.getWords().get(0))) continue;
+							// Check if a cut satisfies all criteria
+							if(Math.abs(getASCII(yL.getMode()) - getASCII(yR.getMode())) >= epsilon) {
+								if((getASCII(yR.getValList().get(0)) - getASCII(start) >= epsilon) &&
+										(getASCII(stop) - getASCII(yVal) >= epsilon)){
+									Double expect = expectedValueSym(yL, yR);
+									if(expect*TRIVIAL < best) {
+										best = expect;
+										cut = true;
+										cutLoc = i;
+										cutXL = new Num(xL);
+										cutXR = new Num(xR);
+										cutYL = new Sym(yL);
+										cutYR = new Sym(yR);
+										cutIndL = new ArrayList<>();
+										for(int k:indL) {
+											cutIndL.add(k);
+										}
+										cutIndR = new ArrayList<>();
+										for(int k:indR) {
+											cutIndR.add(k);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			if(cut) {
+				// Recurse if cut exists
+				findFeatureSymLabelNumSplits(cutXL, cutYL, cutIndL);
+				findFeatureSymLabelNumSplits(cutXR, cutYR, cutIndR);
+			} else {
+				// Else, record the split
+				xRanges.add(x);
+				ySymRanges.add(y);
+				indexRanges.add(indices);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
     }
    
     // Method for recursive feature splits for DT
-    public void findSymNumSplits(Sym x, Num y, List<Integer> indices) {
+    public void findFeatureNumLabelSymSplits(Sym x, Num y, List<Integer> indices) {
     	try {
     		Sym xR = new Sym(x);
 			Num yR = new Num(y);
@@ -279,8 +378,8 @@ public class SplitAttributes {
 			}
 			if(cut) {
 				// Recurse if cut exists
-				findSymNumSplits(cutXL, cutYL, cutIndL);
-				findSymNumSplits(cutXR, cutYR, cutIndR);
+				findFeatureNumLabelSymSplits(cutXL, cutYL, cutIndL);
+				findFeatureNumLabelSymSplits(cutXR, cutYR, cutIndR);
 			} else {
 				// Else, record the split
 				ySymRanges.add(x);
@@ -427,6 +526,36 @@ public class SplitAttributes {
 		}
 	}
 
+	static class FeatureSymLabelNum {
+		public String val;
+		public float label;
+		public int rowIndex;
+
+		public FeatureSymLabelNum(String val, float label, int rowIndex) {
+			this.val = val;
+			this.label = label;
+			this.rowIndex = rowIndex;
+		}
+
+		public String getVal() {
+			return val;
+		}
+
+		public float getLabel() {
+			return label;
+		}
+
+		public int getRowIndex() {
+			return rowIndex;
+		}
+	}
+
+	static class FeatureSymLabelNumComparator implements Comparator<FeatureSymLabelNum> {
+		public int compare(FeatureSymLabelNum s1, FeatureSymLabelNum s2) {
+			return s1.val.compareTo(s2.val);
+		}
+	}
+
 	static class FeatureNum {
 		public float val;
 		public float label;
@@ -471,7 +600,7 @@ public class SplitAttributes {
 		}
 	}
 
-	public void featureSymSplit(Col feature, Col label) throws IOException {
+	public void featureNumLabelSymSplit(Col feature, Col label) throws IOException {
 		feature = (Num)feature;
 		label = (Sym)label;
 		PriorityQueue<FeatureSym> pq = new PriorityQueue<FeatureSym>(new FeatureSymComparator());
@@ -485,15 +614,37 @@ public class SplitAttributes {
 		while (!pq.isEmpty()) {
 			FeatureSym featureSym = pq.poll();
 			xNum.updateMeanAndSD(featureSym.getVal());
-			ySym.addSymbol(featureSym.label);
+			ySym.addSymbol(featureSym.getLabel());
 			indices.add(featureSym.rowIndex);
 		}
 		epsilon = (float) (COHEN*xNum.getStdDev());
-		findSymNumSplits(ySym, xNum, indices);
+		findFeatureNumLabelSymSplits(ySym, xNum, indices);
 		//printSymSplits();
 	}
 
-	public void featureNumSplit(Col feature, Col label) throws IOException {
+	public void featureSymLabelNumSplit(Col feature, Col label) throws IOException {
+		feature = (Sym)feature;
+		label = (Num)label;
+		PriorityQueue<FeatureSymLabelNum> pq = new PriorityQueue<FeatureSymLabelNum>(new FeatureSymLabelNumComparator());
+
+		for (int i =0; i < ((Sym) feature).getTotalCount(); i++) {
+			FeatureSymLabelNum featureSymLabelNum = new FeatureSymLabelNum(((Sym) feature).getValList().get(i), ((Num) label).getValList().get(i).floatValue(),i);
+			pq.add(featureSymLabelNum);
+		}
+		Num xNum = new Num();
+		Sym ySym = new Sym();
+		while (!pq.isEmpty()) {
+			FeatureSymLabelNum featureSym = pq.poll();
+			xNum.updateMeanAndSD(featureSym.getLabel());
+			ySym.addSymbol(featureSym.getVal());
+			indices.add(featureSym.rowIndex);
+		}
+		epsilon = (float) (COHEN*ySym.getEntropy());
+		findFeatureSymLabelNumSplits(xNum, ySym, indices);
+//		printSymSplits();
+	}
+
+	public void featureNumLabelNumSplit(Col feature, Col label) throws IOException {
 		feature = (Num)feature;
 		label = (Num)label;
 		PriorityQueue<FeatureNum> pq = new PriorityQueue<FeatureNum>(new FeatureNumComparator());
@@ -506,26 +657,36 @@ public class SplitAttributes {
 		Num yNum = new Num();
 		while (!pq.isEmpty()) {
 			FeatureNum featureNum = pq.poll();
-			xNum.updateMeanAndSD(featureNum.getVal());
+			yNum.updateMeanAndSD(featureNum.getVal());
 			xNum.updateMeanAndSD(featureNum.getLabel());
 			indices.add(featureNum.rowIndex);
 		}
 		epsilon = (float) (COHEN*yNum.getStdDev());
-		findNumSplits(xNum, yNum);
+		findFeatureNumLabelNumSplits(xNum, yNum, indices);
 	    // printSplits();
 	}
 
 	// Function to be called for Decision Tree Generation
 	public SplitAttributesResponse identifyFeatureSplit(Col label, Col feature) throws IOException {
-		int size = ((Num) feature).getCount();
+    	int size = 0;
+    	if (feature.getClass() == Num.class) {
+			size = ((Num) feature).getCount();
+		}
+		if (feature.getClass() == Sym.class) {
+			size = ((Sym) feature).getTotalCount();
+		}
 		minSplit = (int) Math.sqrt(size);
 	      
-		if (label.getClass() == Sym.class) {
-			featureSymSplit(feature,label);
+		if (label.getClass() == Sym.class && feature.getClass() == Num.class) {
+			featureNumLabelSymSplit(feature,label);
 			return new SplitAttributesResponse(xRanges, ySymRanges, indexRanges);
-		} else if (label.getClass() == Num.class) {
-			featureNumSplit(feature,label);
-			return new SplitAttributesResponse(xRanges, yRanges, indexRanges);
+		} else if (label.getClass() == Num.class && feature.getClass() == Num.class) {
+			featureNumLabelNumSplit(feature,label);
+			return new SplitAttributesResponse(yRanges, xRanges, indexRanges);
+		}
+		else if (label.getClass() == Num.class && feature.getClass() == Sym.class) {
+			featureSymLabelNumSplit(feature,label);
+			return new SplitAttributesResponse(ySymRanges, xRanges, indexRanges);
 		}
 		return null;
 	}
