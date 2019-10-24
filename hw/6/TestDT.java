@@ -6,10 +6,15 @@ public class TestDT {
 	public static void main(String[] args) {
 		
 		Tbl tbl = new Tbl();
-		tbl.read("C:\\Users\\nitis\\Desktop\\CSC 591 - ASE\\HW 6\\diabetes.csv");
+		String labelType = tbl.read("C:\\Users\\satan\\OneDrive\\Desktop\\auto.csv");
 		//tbl.dump();
 		DecisionTreeGenerator dt = new DecisionTreeGenerator();
-		dt.createDecisionTree(tbl);
+		if (labelType.contains("Sym")) {
+			dt.createDecisionTree(tbl,"Sym");
+		}
+		if (labelType.contains("Num")) {
+			dt.createDecisionTree(tbl,"Num");
+		}
 		
 		/*
 		try {
