@@ -96,7 +96,7 @@ public class DecisionTree {
 				System.out.print(d.feature+" = "+d.stats.getLow()+" .. "+d.stats.getHi());
 			}
 			else {
-				System.out.print(d.feature+" = "+d.symStats.getEntropy()+" .. "+d.symStats.getModeCount());
+				System.out.print(d.feature+" = "+d.symStats.getMode());
 			}
 		}
 		if(d.children.size() > 0) {
