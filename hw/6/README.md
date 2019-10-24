@@ -20,6 +20,8 @@ Or
 ```
 dt.createDecisionTree(tbl,"Num");   // For Regression Tree
 ```
+While creating the decision tree, we're using MIN_ROWS = 9. We've done this because our splitting code is creating more splits than expected. So, setting a higher MIN_ROWS reduces the depth of the tree. Alos, for regression trees, we've set an additional stopping criteria to reduce the depth of the tree. If the SD reduction is less than 10%, we stop the split.
+
 Run class TestDT to test the code.  
 
 Output for diabetes.csv is in outputDiabetes.txt  
