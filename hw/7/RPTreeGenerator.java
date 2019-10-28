@@ -11,45 +11,86 @@ import java.util.Set;
 public class RPTreeGenerator {
 	private static final Integer P = 2;
 	private static final Integer N = 10;
+	private Integer minSplit;
 	
-	public void generateRPTree(Tbl tbl) {
-		FastMapResponse resp = getBestPivots(tbl);
-		System.out.println(resp.indices);
-		Set<Integer> indices = resp.getIndices();
+	public RPTree generateRPTree(Tbl tbl) {
+		minSplit = (int) Math.round(Math.sqrt(tbl.getRowCount()));
 		Tbl newTbl = new Tbl(tbl);
-		int i = 0, adj = 0;
-		int count = tbl.getRowCount();
-		while(i < count) {
-			// Delete rows from the table if index not in Set rows
-			if(!indices.isEmpty()) {
-				if(!indices.contains(i)) {
-					try {
-						tbl.deleteRow(i-adj);
-						adj++;
-					} catch (IOException e) {
-						e.printStackTrace();
+		RPTree node = recurse(newTbl, 0);
+		node.setRoot(true);
+		My my = tbl.getMy();
+		List<Col> leafStats = new ArrayList<>();
+		for(Integer i:my.getGoals()) {
+			Col c = tbl.getCols().get(i-1);
+			leafStats.add(c);
+		}
+		node.setLeafStats(leafStats);
+		return node;
+	}
+	
+	private RPTree recurse(Tbl tbl, int level) {
+		RPTree rpNode = new RPTree();
+		if(tbl.getRowCount() < 2*minSplit) {
+			List<RPTree> children = new ArrayList<>();
+			My my = tbl.getMy();
+			List<Col> leafStats = new ArrayList<>();
+			for(Integer i:my.getGoals()) {
+				Col c = tbl.getCols().get(i-1);
+				leafStats.add(c);
+			}
+			rpNode.setChildren(children);
+			rpNode.setLeafStats(leafStats);
+			rpNode.setLevel(level);
+			rpNode.setSplitCount(tbl.getRowCount());
+			return rpNode;
+		} else {
+			FastMapResponse resp = getBestPivots(tbl);
+			//System.out.println(resp.indices);
+			Set<Integer> indices = resp.getIndices();
+			Tbl newTbl = new Tbl(tbl);
+			int i = 0, adj = 0;
+			int count = tbl.getRowCount();
+			while(i < count) {
+				// Delete rows from the table if index not in Set rows
+				if(!indices.isEmpty()) {
+					if(!indices.contains(i)) {
+						try {
+							tbl.deleteRow(i-adj);
+							adj++;
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
 					}
 				}
+				i++;
 			}
-			i++;
-		}
-		i = 0; adj = 0;
-		count = newTbl.getRowCount();
-		while(i < count) {
-			// Delete rows from the table if index not in Set rows
-			if(!indices.isEmpty()) {
-				if(indices.contains(i)) {
-					try {
-						newTbl.deleteRow(i-adj);
-						adj++;
-					} catch (IOException e) {
-						e.printStackTrace();
+			i = 0; adj = 0;
+			count = newTbl.getRowCount();
+			while(i < count) {
+				// Delete rows from the table if index not in Set rows
+				if(!indices.isEmpty()) {
+					if(indices.contains(i)) {
+						try {
+							newTbl.deleteRow(i-adj);
+							adj++;
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
 					}
 				}
+				i++;
 			}
-			i++;
+			int splitCount = tbl.getRowCount()+newTbl.getRowCount();
+			RPTree child1 = recurse(tbl,level+1);
+			RPTree child2 = recurse(newTbl,level+1);
+			List<RPTree> children = new ArrayList<>();
+			children.add(child1);
+			children.add(child2);
+			rpNode.setChildren(children);
+			rpNode.setLevel(level);
+			rpNode.setSplitCount(splitCount);
+			return rpNode;
 		}
-		System.out.println(tbl.getRowCount()+" "+newTbl.getRowCount());
 	}
 	
 	private FastMapResponse getBestPivots(Tbl tbl) {
@@ -102,7 +143,7 @@ public class RPTreeGenerator {
 				bestIndices = indices;
 			}
 		}
-		System.out.println("Best Pivot:\nDistance: "+bestResp.getDistance()+" Total: "+tbl.getRowCount()+" Split1: "+split1+" Split2: "+split2);
+		//System.out.println("Best Pivot:\nDistance: "+bestResp.getDistance()+" Total: "+tbl.getRowCount()+" Split1: "+split1+" Split2: "+split2);
 		bestResp.setIndices(bestIndices);
 		return bestResp;
 	}

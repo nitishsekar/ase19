@@ -10,6 +10,12 @@ public class Col {
 		int pos = -1;
 	}
 	
+	public Col(Col c) {
+		this.oid = c.oid;
+		this.txt = c.txt;
+		this.pos = c.pos;
+	}
+	
 	public Col(Sym s) {
 		Col c = (Col) s;
 		this.oid = c.oid;

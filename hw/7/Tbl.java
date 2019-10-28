@@ -40,6 +40,8 @@ public class Tbl {
     			this.cols.add(new Num((Num) c));
     		} else if(c.getClass() == Sym.class) {
     			this.cols.add(new Sym((Sym) c));
+    		} else {
+    			this.cols.add(new Col(c));
     		}
 		}
     	this.file = tbl.file;
@@ -264,7 +266,9 @@ public class Tbl {
 				System.out.println("| | n: "+sym.getTotalCount());
 				System.out.println(String.format("| | entropy: %.2f",sym.entropyCalc()));
 				System.out.println("| | txt: "+sym.getTxt());
-			} 
+			} else {
+				System.out.println("| "+i+" Empty");
+			}
 		}
 		System.out.println("t.my");
 		List<Integer> myList;
@@ -303,6 +307,7 @@ public class Tbl {
 		for(int j=0; j<myList.size(); j++) {
 			System.out.println("| | "+myList.get(j));
 		}
+		/*
 		System.out.println("t.rows");
 		for(int i=1; i<=rows.size(); i++) {
 			System.out.println("| "+i);
@@ -312,6 +317,7 @@ public class Tbl {
 				System.out.println("| | | "+(j+1)+": "+list.get(j));
 			}
 		}
+		*/
 	}
 	
 	private void parseFile() {
@@ -412,6 +418,10 @@ public class Tbl {
 		//printRows();
 	}
 	
+	public My getMy() {
+		return my;
+	}
+
 	public List<Row> getRows() {
 		return rows;
 	}
