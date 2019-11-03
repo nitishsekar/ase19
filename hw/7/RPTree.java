@@ -7,6 +7,7 @@ public class RPTree {
 	private int level;
 	private int splitCount;
 	private boolean isRoot;
+	private List<Row> rows;
 	
 	public RPTree() {
 		children = new ArrayList<>();
@@ -14,6 +15,15 @@ public class RPTree {
 		isRoot = false;
 		level = 0;
 		splitCount = 0;
+		rows = new ArrayList<>();
+	}
+
+	public List<Row> getRows() {
+		return rows;
+	}
+
+	public void setRows(List<Row> rows) {
+		this.rows = rows;
 	}
 
 	public List<RPTree> getChildren() {
@@ -75,7 +85,7 @@ public class RPTree {
 					System.out.print(String.format("%s (%.2f); ",s.getMode(),s.getEntropy()));
 				}
 			}
-			System.out.println();
+			System.out.println(" rows: "+r.getRows().size());
 		} else {
 			for(RPTree rc:r.getChildren()) {
 				printTree(rc);
