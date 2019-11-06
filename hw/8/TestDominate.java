@@ -8,7 +8,7 @@ public class TestDominate {
 
 	public static void main(String[] args) {
 		Tbl tbl = new Tbl();
-		tbl.read("C:\\Users\\nitis\\Desktop\\CSC 591 - ASE\\HW 8\\auto.csv");
+		tbl.read("C:\\Users\\satan\\OneDrive\\Desktop\\auto.csv");
 		System.out.println("Goals are rows "+tbl.getMy().getGoals()+"\nMinimize: "+tbl.getMy().getW());
 		int rc = tbl.getRowCount();
 		List<Integer> vals = new ArrayList<>();

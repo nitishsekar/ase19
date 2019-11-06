@@ -90,39 +90,56 @@ public class DecisionTree {
 		this.flag = flag;
 	}
 
-	public void printTree(DecisionTree d, String labelType, int ind) {
+	public void printTree(DecisionTree d, String labelType, int ind, StringBuilder sb) {
 		if(!d.isRoot) {
-			for(int i=0; i<d.level-1; i++)
+			for(int i=0; i<d.level-1; i++) {
 				System.out.print("| ");
+				sb.append("| ");
+			}
+
 			if (!d.isFlag()) {
-				if(ind == 0)
+				if(ind == 0) {
 					System.out.print(d.feature+" = "+LOW+" .. "+d.stats.getHi());
-				else if(ind == -1)
+					sb.append(d.feature+" = "+LOW+" .. "+d.stats.getHi());
+				}
+
+				else if(ind == -1) {
 					System.out.print(d.feature+" = "+d.stats.getLow()+" .. "+HIGH);
-				else
+					sb.append(d.feature+" = "+d.stats.getLow()+" .. "+HIGH);
+				}
+
+				else {
 					System.out.print(d.feature+" = "+d.stats.getLow()+" .. "+d.stats.getHi());
+					sb.append(d.feature+" = "+d.stats.getLow()+" .. "+d.stats.getHi());
+				}
+
 			}
 			else {
 				System.out.print(d.feature+" = "+d.symStats.getMode());
+				sb.append(d.feature+" = "+d.symStats.getMode());
 			}
 		}
 		if(d.children.size() > 0) {
 			System.out.println();
+			sb.append('\n');
 			for(int i = 0; i<d.children.size(); i++) {
 				DecisionTree dt = d.children.get(i);
 				if(i == d.children.size()-1)
-					printTree(dt,labelType, -1);
+					printTree(dt,labelType, -1, sb);
 				else
-					printTree(dt,labelType, i);
+					printTree(dt,labelType, i, sb);
 			}
 		} else {
 			if (labelType == "Sym") {
 				System.out.println(" : "+d.symLeafStats.getMode()+" ("+d.symLeafStats.getModeCount()+")");
+				sb.append(" : "+d.symLeafStats.getMode()+" ("+d.symLeafStats.getModeCount()+")");
+				sb.append('\n');
 			}
 			if (labelType == "Num") {
 				//System.out.println(" : "+d.numLeafStats.getMean()+" ("+d.numLeafStats.getCount()+")");
 				System.out.println(String.format(" : %6.2f (%d)",d.numLeafStats.getMean(),d.numLeafStats.getCount()));
-				
+				sb.append(String.format(" : %6.2f (%d)",d.numLeafStats.getMean(),d.numLeafStats.getCount()));
+				sb.append('\n');
 			}
 		}
 	}

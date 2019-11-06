@@ -228,6 +228,87 @@ public class SplitAttributes {
 			e.printStackTrace();
 		}
     }
+
+	public void findFeatureSymLabelSymSplits(Sym x, Sym y, List<Integer> indices) {
+		try {
+			Sym xR = new Sym(x);
+			Sym yR = new Sym(y);
+			Sym xL = new Sym();
+			Sym yL = new Sym();
+			List<Integer> indL = new ArrayList<>();
+			List<Integer> indR = new ArrayList<>();
+			for(int i:indices) {
+				indR.add(i);
+			}
+
+			Sym cutXR = new Sym();
+			Sym cutYR = new Sym();
+			Sym cutXL = new Sym();
+			Sym cutYL = new Sym();
+
+			List<Integer> cutIndL = new ArrayList<>();
+			List<Integer> cutIndR = new ArrayList<>();
+
+			Double best = y.getEntropy();
+			int n = yR.getTotalCount();
+			boolean cut = false;
+			int cutLoc = -1;
+			List<String> list = y.getWords();
+			String start = list.get(0);
+			String stop = list.get(list.size()-1);
+			for(int i=0; i<n; i++) {
+				if(n-i-1 >= minSplit) {
+					String val = xR.deleteFirstSym();
+					xL.addSymbol(val);
+					String yVal = yR.deleteFirstSym();
+					yL.addSymbol(yVal);
+					int indVal = indR.remove(0);
+					indL.add(indVal);
+					if(i > minSplit-1) {
+						if (yR.totalCount != 0) {
+							if(yVal.equals(yR.getWords().get(0))) continue;
+							// Check if a cut satisfies all criteria
+							if(Math.abs(getASCII(yL.getMode()) - getASCII(yR.getMode())) >= epsilon) {
+								if((getASCII(yR.getValList().get(0)) - getASCII(start) >= epsilon) &&
+										(getASCII(stop) - getASCII(yVal) >= epsilon)){
+									Double expect = expectedValueSym(yL, yR);
+									if(expect*TRIVIAL < best) {
+										best = expect;
+										cut = true;
+										cutLoc = i;
+										cutXL = new Sym(xL);
+										cutXR = new Sym(xR);
+										cutYL = new Sym(yL);
+										cutYR = new Sym(yR);
+										cutIndL = new ArrayList<>();
+										for(int k:indL) {
+											cutIndL.add(k);
+										}
+										cutIndR = new ArrayList<>();
+										for(int k:indR) {
+											cutIndR.add(k);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			if(cut) {
+				// Recurse if cut exists
+				findFeatureSymLabelSymSplits(cutXL, cutYL, cutIndL);
+				findFeatureSymLabelSymSplits(cutXR, cutYR, cutIndR);
+			} else {
+				// Else, record the split
+				xRanges.add(x);
+				ySymRanges.add(y);
+				indexRanges.add(indices);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
     
     public void findFeatureSymLabelNumSplits(Num x, Sym y, List<Integer> indices) {
     	try {
@@ -550,8 +631,38 @@ public class SplitAttributes {
 		}
 	}
 
+	static class FeatureSymLabelSym {
+		public String val;
+		public String label;
+		public int rowIndex;
+
+		public FeatureSymLabelSym(String val, String label, int rowIndex) {
+			this.val = val;
+			this.label = label;
+			this.rowIndex = rowIndex;
+		}
+
+		public String getVal() {
+			return val;
+		}
+
+		public String getLabel() {
+			return label;
+		}
+
+		public int getRowIndex() {
+			return rowIndex;
+		}
+	}
+
 	static class FeatureSymLabelNumComparator implements Comparator<FeatureSymLabelNum> {
 		public int compare(FeatureSymLabelNum s1, FeatureSymLabelNum s2) {
+			return s1.val.compareTo(s2.val);
+		}
+	}
+
+	static class FeatureSymLabelSymComparator implements Comparator<FeatureSymLabelSym> {
+		public int compare(FeatureSymLabelSym s1, FeatureSymLabelSym s2) {
 			return s1.val.compareTo(s2.val);
 		}
 	}
@@ -644,6 +755,28 @@ public class SplitAttributes {
 //		printSymSplits();
 	}
 
+	public void featureSymLabelSymSplit(Col feature, Col label) throws IOException {
+		feature = (Sym)feature;
+		label = (Sym)label;
+		PriorityQueue<FeatureSymLabelSym> pq = new PriorityQueue<FeatureSymLabelSym>(new FeatureSymLabelSymComparator());
+
+		for (int i =0; i < ((Sym) feature).getTotalCount(); i++) {
+			FeatureSymLabelSym featureSymLabelSym = new FeatureSymLabelSym(((Sym) feature).getValList().get(i), ((Sym) label).getValList().get(i),i);
+			pq.add(featureSymLabelSym);
+		}
+		Sym xSym = new Sym();
+		Sym ySym = new Sym();
+		while (!pq.isEmpty()) {
+			FeatureSymLabelSym featureSymLabelSym = pq.poll();
+			xSym.addSymbol(featureSymLabelSym.getLabel());
+			ySym.addSymbol(featureSymLabelSym.getVal());
+			indices.add(featureSymLabelSym.rowIndex);
+		}
+		epsilon = (float) (COHEN*ySym.getEntropy());
+		findFeatureSymLabelSymSplits(xSym, ySym, indices);
+//		printSymSplits();
+	}
+
 	public void featureNumLabelNumSplit(Col feature, Col label) throws IOException {
 		feature = (Num)feature;
 		label = (Num)label;
@@ -686,6 +819,10 @@ public class SplitAttributes {
 		}
 		else if (label.getClass() == Num.class && feature.getClass() == Sym.class) {
 			featureSymLabelNumSplit(feature,label);
+			return new SplitAttributesResponse(ySymRanges, xRanges, indexRanges);
+		}
+		else if (label.getClass() == Sym.class && feature.getClass() == Sym.class) {
+			featureSymLabelSymSplit(feature,label);
 			return new SplitAttributesResponse(ySymRanges, xRanges, indexRanges);
 		}
 		return null;

@@ -6,16 +6,16 @@ import java.util.Set;
 
 public class DecisionTreeGenerator {
 	public static final int MIN_ROWS = 9;
-	public void createDecisionTree(Tbl tbl, String labelType) {
+	public void createDecisionTree(Tbl tbl, String labelType, StringBuilder sb) {
 		Set<Integer> s = new HashSet<>();
 		DecisionTree finalDT = recurse(tbl, s, 1, labelType);
 		finalDT.setLevel(0);
 		finalDT.makeRoot();
 		if (labelType == "Sym") {
 			finalDT = finalDT.pruneTree(finalDT);
-			finalDT.printTree(finalDT,labelType, 0);
+			finalDT.printTree(finalDT,labelType, 0, sb);
 		} else {
-			finalDT.printTree(finalDT,labelType, 0);
+			finalDT.printTree(finalDT,labelType, 0, sb);
 			
 		}
 	}
@@ -64,7 +64,6 @@ public class DecisionTreeGenerator {
 					List<DecisionTree> children = new ArrayList<>();
 					List<Col> featureRanges = bestResp.getFeatureRanges();
 					for(int k=0; k<featureRanges.size(); k++) {
-						Num c = (Num) featureRanges.get(k);
 						List<Integer> indices = bestResp.getIndicesLists().get(k);
 						Set<Integer> inds = new HashSet<>();
 						for(int j:indices) {
@@ -72,7 +71,15 @@ public class DecisionTreeGenerator {
 						}
 						DecisionTree child = recurse(newTbl,inds,level+1,labelType);
 						child.setFeature(bestFeature);
-						child.setStats(c);
+						if (featureRanges.get(k).getClass() == Num.class) {
+							Num c = (Num) featureRanges.get(k);
+							child.setStats(c);
+						}
+						if (featureRanges.get(k).getClass() == Sym.class) {
+							Sym c = (Sym) featureRanges.get(k);
+							child.setFlag(true);
+							child.setSymStats(c);
+						}
 						children.add(child);
 
 					}

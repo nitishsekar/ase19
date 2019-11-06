@@ -1,3 +1,6 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -111,6 +114,57 @@ public class RPTree {
 					System.out.print(String.format("%s (%.2f); ",s.getMode(),s.getEntropy()));
 				}
 			}
+		}
+	}
+
+	public void printClusterToFile(Tbl tbl, RPTree leaf, String fileName) {
+		PrintWriter writer;
+		try {
+		    File file = new File(fileName);
+		    if (file.exists()) {
+		        file.delete();
+            }
+			writer = new PrintWriter(file);
+			StringBuilder sb = new StringBuilder();
+			for (Col col : tbl.getCols()) {
+				sb.append(col.getTxt());
+				sb.append(',');
+			}
+			sb.append("!class");
+			sb.append('\n');
+			for (Row row : leaf.rows) {
+				for (String string : row.getCells()) {
+					if (string.equals("")) {
+						sb.append("?");
+					}
+					else {
+						sb.append(string);
+					}
+					sb.append(',');
+				}
+				sb.append("class1");
+				sb.append('\n');
+			}
+			if (leaf.envy != null) {
+				for (Row row : leaf.envy.rows) {
+					for (String string : row.getCells()) {
+						if (string.equals("")) {
+							sb.append("?");
+						}
+						else {
+							sb.append(string);
+						}
+						sb.append(',');
+					}
+					sb.append("class2");
+					sb.append('\n');
+				}
+			}
+			writer.write(sb.toString());
+			writer.flush();
+		}
+		catch (FileNotFoundException e) {
+			System.out.println(e.getMessage());
 		}
 	}
 }
