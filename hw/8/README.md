@@ -2,7 +2,7 @@ Team:
 <b>Satanik Ray - sray7</b>
 <b>Nitish Sekar - nsekar</b>
 
-<b>Details
+<b>Details</b>
 
 Folder Resultant DataSets contain the following :
 (a) Two class datasets for each leaf cluster, class1, from RPTree and the cluster it envies the most, class2 (used for local learning).
