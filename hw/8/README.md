@@ -8,4 +8,4 @@ Folder Resultant Decision Trees contain the following :
 (a) Trees.md for the print out of the trees from (a) above. 
 (b) resultantGlobalLearningDT.md for the print out of the tree from (b) above. 
 
-The output for the domination predicate test is in rowBestRest.md
+The output for the domination predicate test is in rowBestRest.md. To generate similar output, run ```TestDominate.java```
