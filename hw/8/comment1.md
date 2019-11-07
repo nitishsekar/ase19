@@ -1,0 +1,1 @@
+The trees generated in this assignment can be considered good because they're pruned and aren't too deep. As a result, they aren't too complex, thus satisfying the phrase "good knowledge is succinct knowledge".
