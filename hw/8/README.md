@@ -16,4 +16,7 @@ Run <b>TestDominate</b> to read auto.csv, randomly shuffle the rows, select a 10
 
 Run <b>TestRP</b> to read auto.csv, generate an RPTree from that, determine the leaf clusters and the cluster each envies the most, generate a two class-system dataset from each leaf & envy combination and then learn a decision tree from each. 
 
-Run <b>TestDominate</b> to read auto.csv, rank each row by its domination over the other rows, generate a two class-system dataset for top 20% and rest 80% rows and learn a decision tree from that. 
+Run <b>TestDominate</b> to read auto.csv, rank each row by its domination over the other rows, generate a two class-system dataset for top 20% and rest 80% rows and learn a decision tree from that.  
+
+```rowBestRest.md``` contains the output for part 4, i.e. the 4 best nd the 4 worst rows in a randomly selected sample of 100.  
+For the required comments, check ```comment1.md``` and ```comment2.md```.
