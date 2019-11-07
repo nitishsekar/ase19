@@ -44,11 +44,13 @@ public class RPTreeGenerator {
 		List<Col> centCols = centroidTbl.getCols();
 		float leastEnvy = Float.MAX_VALUE;
 		int leastIndex = -1;
+		float leastDomCount = Integer.MAX_VALUE;
 		for(int i=0; i<leaves.size(); i++) {
 			float envy = 0.0f;
 			List<Float> centDoms = new ArrayList<>();
 			List<Float> distVals = new ArrayList<>();
 			float totalDom = 0.0f;
+			float maxDom = -Float.MAX_VALUE;
 			RPTree envyLeaf = new RPTree();
 			RPTree leaf = leaves.get(i);
 			for(int j=0; j<leaves.size(); j++) {
@@ -59,6 +61,9 @@ public class RPTreeGenerator {
 					Float dist = rowDistance(cent1, cent2, leaf.getLeafStats());
 					dist = (float) (dist / Math.sqrt(centCols.size()));
 					Float dom = cent1.dominates(cent1, cent2, centCols);
+					if (dom > maxDom) {
+						maxDom = dom;
+					}
 					distVals.add(dist);
 					centDoms.add(dom);
 					totalDom += dom;
@@ -71,17 +76,23 @@ public class RPTreeGenerator {
 				if(j != i) {
 					Row cent2 = leafCentroids.get(j);
 					float envyVal = envy(distVals.get(j), centDoms.get(j)/totalDom);
+//					System.out.print(envyVal+" ");
 //					System.out.println("Dist: "+distVals.get(j)+" Dom: "+centDoms.get(j)/totalDom+" Envy: "+envyVal);
 					if(envyVal > envy) {
 						envy = envyVal;
 						envyLeaf = leaves.get(j);
 					}
 				}
+
 			}
 //			System.out.println("Max Envy: "+envy);
-			if(envy < leastEnvy) {
-				leastEnvy = envy;
+//			if(envy < leastEnvy) {
+//				leastEnvy = envy;
+//				leastIndex = i;
+//			}
+			if (maxDom < 0.0f) {
 				leastIndex = i;
+				System.out.println("Best cluster is "+i);
 			}
 			RPTree currLeaf = leaves.get(i);
 			currLeaf.setEnvy(envyLeaf);

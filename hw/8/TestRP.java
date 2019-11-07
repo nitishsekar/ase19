@@ -44,39 +44,42 @@ public class TestRP {
 				}
 			}
 		}
-
-		for (int i = 0; i < leaves.size(); i++) {
-			int index = i+1;
-			String fileNameDataSet = "resultantDataSet_"+index+".csv";
-			RPTree leaf = leaves.get(i);
-			leaf.printClusterToFile(tbl,leaf,fileNameDataSet);
-			Tbl table = new Tbl();
-			String labelType = table.read(fileNameDataSet);
-			DecisionTreeGenerator dt = new DecisionTreeGenerator();
-			System.out.println("Decision Tree for "+fileNameDataSet);
-			String fileNameDT = "resultantDT_"+index+".md";
-			PrintWriter writer;
-			try {
-				File file = new File(fileNameDT);
-				if (file.exists()) {
-					file.delete();
-				}
-				writer = new PrintWriter(file);
-				StringBuilder sb = new StringBuilder();
+		PrintWriter writer;
+		String fileNameDT = "Trees.md";
+		try {
+			File file = new File(fileNameDT);
+			if (file.exists()) {
+				file.delete();
+			}
+			writer = new PrintWriter(file);
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < leaves.size(); i++) {
+				int index = i+1;
+				String fileNameDataSet = "resultantDataSet_"+index+".csv";
+				RPTree leaf = leaves.get(i);
+				leaf.printClusterToFile(tbl,leaf,fileNameDataSet);
+				Tbl table = new Tbl();
+				String labelType = table.read(fileNameDataSet);
+				DecisionTreeGenerator dt = new DecisionTreeGenerator();
+				System.out.println("Decision Tree for "+fileNameDataSet);
+//				String fileNameDT = "resultantDT_"+index+".md";
+//				PrintWriter writer;
+				sb.append("Decision Tree for "+fileNameDataSet);
 				if (labelType.contains("Sym")) {
 					dt.createDecisionTree(table,"Sym",sb);
 				}
 				if (labelType.contains("Num")) {
 					dt.createDecisionTree(table,"Num",sb);
 				}
-				writer.write(sb.toString());
-				writer.flush();
+				sb.append('\n');
 			}
-			catch (FileNotFoundException e) {
-				System.out.println(e.getMessage());
-			}
-
+			writer.write(sb.toString());
+			writer.flush();
 		}
+		catch (FileNotFoundException e) {
+			System.out.println(e.getMessage());
+		}
+
 		System.out.println();
 	}
 
