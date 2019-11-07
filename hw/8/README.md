@@ -10,4 +10,4 @@ Folder Resultant Decision Trees contain the following :
 
 The output for the domination predicate test is in rowBestRest.md. To generate similar output, run ```TestDominate.java```  
 You should run ```TestRP.java``` to perform Local Learning, and generate the corresponding cluster datasets and decision trees.  
-You should run ```TestGlobalLearning.java``` to perform Global Learning for part 6.
+You should run ```TestGlobalLearning.java``` to perform Global Learning for part 7.
