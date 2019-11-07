@@ -8,7 +8,7 @@ public class TestDT {
 		Tbl tbl = new Tbl();
 		
 		// For Regression Tree
-		String labelType = tbl.read("C:\\Users\\nitis\\Desktop\\CSC 591 - ASE\\HW 6\\auto.csv");
+		String labelType = tbl.read("C:\\Users\\satan\\OneDrive\\Desktop\\auto.csv");
 		
 		// Uncomment for Decision Tree
 		// String labelType = tbl.read("diabetes.csv");

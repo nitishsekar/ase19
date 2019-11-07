@@ -1,3 +1,7 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,6 +12,7 @@ public class RPTree {
 	private int splitCount;
 	private boolean isRoot;
 	private List<Row> rows;
+	private RPTree envy;
 	
 	public RPTree() {
 		children = new ArrayList<>();
@@ -42,6 +47,14 @@ public class RPTree {
 		this.leafStats = leafStats;
 	}
 
+	public RPTree getEnvy() {
+		return envy;
+	}
+
+	public void setEnvy(RPTree envy) {
+		this.envy = envy;
+	}
+
 	public int getLevel() {
 		return level;
 	}
@@ -65,6 +78,8 @@ public class RPTree {
 	public void setRoot(boolean isRoot) {
 		this.isRoot = isRoot;
 	}
+
+
 	
 	public void printTree(RPTree r) {
 		if(!r.isRoot) {
@@ -102,6 +117,37 @@ public class RPTree {
 					System.out.print(String.format("%s (%.2f); ",s.getMode(),s.getEntropy()));
 				}
 			}
+		}
+	}
+
+	public void printClusterToFile(Tbl tbl, RPTree leaf) {
+		try (PrintWriter writer = new PrintWriter(new File("result.csv"))) {
+			StringBuilder sb = new StringBuilder();
+			for (Col col : tbl.getCols()) {
+				sb.append("\""+col.getTxt()+"\"");
+			}
+			sb.append("!class");
+			sb.append('\n');
+			for (Row row : leaf.rows) {
+				for (String string : row.getCells()) {
+					sb.append("\""+string+"\"");
+					sb.append(',');
+				}
+				sb.append("class1");
+				sb.append('\n');
+			}
+			for (Row row : leaf.envy.rows) {
+				for (String string : row.getCells()) {
+					sb.append("\""+string+"\"");
+					sb.append(',');
+				}
+				sb.append("class2");
+				sb.append('\n');
+			}
+			writer.write(sb.toString());
+		}
+		catch (FileNotFoundException e) {
+			System.out.println(e.getMessage());
 		}
 	}
 }

@@ -122,7 +122,7 @@ public class DecisionTree {
 			if (labelType == "Num") {
 				//System.out.println(" : "+d.numLeafStats.getMean()+" ("+d.numLeafStats.getCount()+")");
 				System.out.println(String.format(" : %6.2f (%d)",d.numLeafStats.getMean(),d.numLeafStats.getCount()));
-				
+
 			}
 		}
 	}
@@ -135,7 +135,7 @@ public class DecisionTree {
 			for(int i=0; i<dt.getChildren().size(); i++) {
 				DecisionTree d = dt.getChildren().get(i);
 				//System.out.println("->"+d.feature+" "+d.children.size());
-				
+
 				if(d.getChildren().size() > 0) {
 					d = pruneTree(d);
 					if(d.getChildren().size() > 0) {
