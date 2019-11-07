@@ -12,7 +12,7 @@ Folder Resultant Decision Trees contain the following :
 (a) Trees.md for the print out of the trees from (a) above. 
 (b) resultantGlobalLearningDT.md for the print out of the tree from (b) above. 
 
-Run <b>TestDominate</b> to read auto.csv, randomly shuffle the rows, select a 100 of them, compare its domination with the other 99 rows and rank them accordingly. 
+Run <b>TestDominate</b> to read auto.csv, randomly shuffle the rows, select a 100 of them, compare its domination with the other 99 rows rank them accordingly and print the top 4 & bottom 4 rows. 
 
 Run <b>TestRP</b> to read auto.csv, generate an RPTree from that, determine the leaf clusters and the cluster each envies the most, generate a two class-system dataset from each leaf & envy combination and then learn a decision tree from each. 
 
