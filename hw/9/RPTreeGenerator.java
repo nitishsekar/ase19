@@ -1,4 +1,9 @@
+import sun.util.locale.provider.LocaleServiceProviderPool;
+
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -14,6 +19,7 @@ public class RPTreeGenerator {
 	private Integer minSplit;
 	private List<RPTree> leaves;
 	private Tbl centroidTbl;
+	private Float magicAlpha = 0.5f;
 	
 	public RPTree generateRPTree(Tbl tbl) {
 		minSplit = (int) Math.round(Math.sqrt(tbl.getRowCount()));
@@ -201,6 +207,7 @@ public class RPTreeGenerator {
 			rpNode.setChildren(children);
 			rpNode.setLevel(level);
 			rpNode.setSplitCount(splitCount);
+			rpNode.setFastMapResponse(resp);
 			return rpNode;
 		}
 	}
@@ -210,6 +217,7 @@ public class RPTreeGenerator {
 		Integer split1 = 0, split2 = 0;
 		FastMapResponse bestResp = new FastMapResponse();
 		Set<Integer> bestIndices = new HashSet<>();
+		Float bestMedian = 0.0f;
 		for(int j = 0; j<N; j++) {
 			FastMapResponse resp = fastMap(tbl);
 			/*
@@ -253,10 +261,12 @@ public class RPTreeGenerator {
 				split2 = size-indices.size();
 				bestResp = resp;
 				bestIndices = indices;
+				bestMedian = median;
 			}
 		}
 		//System.out.println("Best Pivot:\nDistance: "+bestResp.getDistance()+" Total: "+tbl.getRowCount()+" Split1: "+split1+" Split2: "+split2);
 		bestResp.setIndices(bestIndices);
+		bestResp.setMedianCosineDistance(bestMedian);
 		return bestResp;
 	}
 	
@@ -360,45 +370,55 @@ public class RPTreeGenerator {
         }
     }
 	
-	static class FastMapResponse {
-        private Row pivot1;
-        private Row pivot2;
-        private Float distance;
-        private Set<Integer> indices;
-        
-        public FastMapResponse() {
-        	this.pivot1 = new Row();
-        	this.pivot2 = new Row();
-        	this.distance = -1.0f;
-        	this.indices = new HashSet<>();
-        }
-
-        public FastMapResponse(Row pivot1, Row pivot2, Float distance) {
-            this.pivot1 = pivot1;
-            this.pivot2 = pivot2;
-            this.distance = distance;
-        }
-
-        public Row getPivot1() {
-        	return pivot1;
-        }
-        
-        public Row getPivot2() {
-        	return pivot2;
-        }
-        
-        public float getDistance() {
-            return distance;
-        }
-        
-        public Set<Integer> getIndices() {
-        	return indices;
-        }
-        
-        public void setIndices(Set<Integer> indices) {
-        	this.indices = indices;
-        }
-    }
+//	static class FastMapResponse {
+//        private Row pivot1;
+//        private Row pivot2;
+//        private Float distance;
+//        private Set<Integer> indices;
+//		private Float medianCosineDistance;
+//
+//        public FastMapResponse() {
+//        	this.pivot1 = new Row();
+//        	this.pivot2 = new Row();
+//        	this.distance = -1.0f;
+//        	this.indices = new HashSet<>();
+//        	this.medianCosineDistance = medianCosineDistance;
+//        }
+//
+//        public FastMapResponse(Row pivot1, Row pivot2, Float distance) {
+//            this.pivot1 = pivot1;
+//            this.pivot2 = pivot2;
+//            this.distance = distance;
+//        }
+//
+//        public Row getPivot1() {
+//        	return pivot1;
+//        }
+//
+//        public Row getPivot2() {
+//        	return pivot2;
+//        }
+//
+//        public float getDistance() {
+//            return distance;
+//        }
+//
+//        public Set<Integer> getIndices() {
+//        	return indices;
+//        }
+//
+//        public void setIndices(Set<Integer> indices) {
+//        	this.indices = indices;
+//        }
+//
+//		public Float getMedianCosineDistance() {
+//			return medianCosineDistance;
+//		}
+//
+//		public void setMedianCosineDistance(Float medianCosineDistance) {
+//			this.medianCosineDistance = medianCosineDistance;
+//		}
+//    }
 	
 	
 	
@@ -411,4 +431,114 @@ public class RPTreeGenerator {
             return 0;
         }
 	}
+
+	public Float newRowDistance(RPTree rpTree, Tbl tbl, Row row) {
+		float x = 0.0f;
+		FastMapResponse fastMapResponse = rpTree.getFastMapResponse();
+		x = cosDistance(fastMapResponse.getPivot1(), fastMapResponse.getPivot2(), row, fastMapResponse.getDistance(), tbl.getCols());
+		return x;
+	}
+
+	public Anomalous getAnomaly(RPTree rpTree, float x) {
+		Anomalous anomalous = new Anomalous();
+		Float far = 0.0f;
+		boolean isAnomalous;
+		String direction;
+		FastMapResponse fastMapResponse = rpTree.getFastMapResponse();
+		float s = fastMapResponse.getMedianCosineDistance();
+		if (x < s) {
+			direction = "left";
+		}
+		else {
+			direction = "right";
+		}
+		if (s < 0.5) {
+			far = s*magicAlpha;
+			isAnomalous = x < far;
+		}
+		else {
+			far = s+((1-s)*magicAlpha);
+			isAnomalous = x > far;
+		}
+//		System.out.println("DEBUG: far= "+far+", x="+x+", Anomaly? = "+isAnomalous);
+		anomalous.setFar(far);
+		anomalous.setAnomalous(isAnomalous);
+		anomalous.setDirection(direction);
+		return anomalous;
+	}
+
+	static class Anomalous {
+		private float far;
+		private boolean isAnomalous;
+		private String direction;
+
+		public float getFar() {
+			return far;
+		}
+
+		public void setFar(float far) {
+			this.far = far;
+		}
+
+		public boolean getAnomalous() {
+			return isAnomalous;
+		}
+
+		public void setAnomalous(boolean anomalous) {
+			isAnomalous = anomalous;
+		}
+
+		public String getDirection() {
+			return direction;
+		}
+
+		public void setDirection(String direction) {
+			this.direction = direction;
+		}
+	}
+
+	public RPTree addAnomalousRows(RPTree rpTree, Tbl tbl, Row newRow, Anomalous anomalous) {
+		if (rpTree.getChildren().size() == 0) {
+			if(anomalous.getAnomalous()) {
+//				System.out.println("DEBUG: Adding Anomalous row");
+				//add row to cluster
+				List<Row> rows = rpTree.getRows();
+				rows.add(newRow);
+				rpTree.setRows(rows);
+				rpTree.setSplitCount(rows.size());
+				My my = tbl.getMy();
+				List<Col> leafStats = new ArrayList<>();
+				for (Integer i : my.getGoals()) {
+					Col c = tbl.getCols().get(i - 1);
+					leafStats.add(c);
+				}
+				rpTree.setLeafStats(leafStats);
+			}
+		}
+		else {
+			float x = newRowDistance(rpTree,tbl,newRow);
+			boolean prevAnomaly = anomalous.getAnomalous();
+			anomalous = getAnomaly(rpTree,x);
+			anomalous.setAnomalous(anomalous.getAnomalous()||prevAnomaly);
+			if (anomalous.getDirection() == "left") {
+				List<RPTree> children = rpTree.getChildren();
+				children.set(0, addAnomalousRows(children.get(0),tbl,newRow, anomalous));
+				rpTree.setChildren(children);
+			}
+			if (anomalous.getDirection() == "right") {
+				List<RPTree> children = rpTree.getChildren();
+				children.set(1, addAnomalousRows(children.get(1),tbl,newRow, anomalous));
+				rpTree.setChildren(children);
+			}
+			List<RPTree> children = rpTree.getChildren();
+			int size = 0;
+			for(RPTree r:children) {
+				size += r.getSplitCount();
+			}
+			rpTree.setSplitCount(size);
+		}
+		return rpTree;
+	}
+
+
 }

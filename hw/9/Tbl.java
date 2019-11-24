@@ -49,6 +49,39 @@ public class Tbl {
 		this.symCols = tbl.symCols;
 		this.my = tbl.my;
 	}
+
+	public Tbl(Tbl tbl, List<Row> rows, List<List<String>> file) {
+		this.rows = new ArrayList<>();
+		for(int i=0; i<rows.size(); i++) {
+			this.rows.add(new Row(rows.get(i)));
+		}
+		this.cols = new ArrayList<>();
+		for(int i=0; i<tbl.cols.size(); i++) {
+			Col c = tbl.cols.get(i);
+			if(c.getClass() == Num.class) {
+				this.cols.add(new Num((Num) c));
+			} else if(c.getClass() == Sym.class) {
+				this.cols.add(new Sym((Sym) c));
+			} else {
+				this.cols.add(new Col(c));
+			}
+		}
+		this.file = new ArrayList<>();
+		for(int i=0; i<file.size(); i++) {
+			this.file.add(file.get(i));
+		}
+		this.ignoreCol = tbl.ignoreCol;
+		this.symCols = tbl.symCols;
+		this.my = tbl.my;
+	}
+
+	public List<List<String>> getFile() {
+		return file;
+	}
+
+	public void setFile(List<List<String>> file) {
+		this.file = file;
+	}
 	
 	public void setCols(List<String> row) {
 		int colCount = 0;

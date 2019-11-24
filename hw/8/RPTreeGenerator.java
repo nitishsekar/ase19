@@ -85,11 +85,7 @@ public class RPTreeGenerator {
 				}
 
 			}
-//			System.out.println("Max Envy: "+envy);
-//			if(envy < leastEnvy) {
-//				leastEnvy = envy;
-//				leastIndex = i;
-//			}
+
 			if (maxDom < 0.0f) {
 				leastIndex = i;
 				System.out.println("Best cluster is "+i);

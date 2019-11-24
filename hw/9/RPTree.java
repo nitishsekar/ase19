@@ -12,6 +12,7 @@ public class RPTree {
 	private boolean isRoot;
 	private List<Row> rows;
 	private RPTree envy;
+	private FastMapResponse fastMapResponse;
 	
 	public RPTree getEnvy() {
 		return envy;
@@ -77,7 +78,18 @@ public class RPTree {
 	public void setRoot(boolean isRoot) {
 		this.isRoot = isRoot;
 	}
-	
+
+
+	public FastMapResponse getFastMapResponse() {
+		return fastMapResponse;
+	}
+
+	public void setFastMapResponse(FastMapResponse fastMapResponse) {
+		this.fastMapResponse = fastMapResponse;
+	}
+
+
+
 	public void printTree(RPTree r) {
 		if(!r.isRoot) {
 			for(int i=0; i<r.level; i++)
@@ -167,4 +179,8 @@ public class RPTree {
 			System.out.println(e.getMessage());
 		}
 	}
+
+
+
+
 }
