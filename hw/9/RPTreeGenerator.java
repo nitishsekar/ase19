@@ -1,5 +1,3 @@
-import sun.util.locale.provider.LocaleServiceProviderPool;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -17,12 +15,22 @@ public class RPTreeGenerator {
 	private static final Integer P = 2;
 	private static final Integer N = 10;
 	private Integer minSplit;
+	private Integer rootCount;
 	private List<RPTree> leaves;
 	private Tbl centroidTbl;
 	private Float magicAlpha = 0.5f;
 	
 	public RPTree generateRPTree(Tbl tbl) {
 		minSplit = (int) Math.round(Math.sqrt(tbl.getRowCount()));
+		return generateRPTreeGeneric(tbl);
+	}
+	
+	private RPTree generateRPTreeForCluster(Tbl tbl, Integer min) {
+		minSplit = min;
+		return generateRPTreeGeneric(tbl);
+	}
+	
+	private RPTree generateRPTreeGeneric(Tbl tbl) {
 		Tbl newTbl = new Tbl(tbl);
 		RPTree node = recurse(newTbl, 0);
 		node.setRoot(true);
@@ -498,6 +506,9 @@ public class RPTreeGenerator {
 	}
 
 	public RPTree addAnomalousRows(RPTree rpTree, Tbl tbl, Row newRow, Anomalous anomalous) {
+		if(rpTree.getLevel() == 0) {
+			rootCount = rpTree.getSplitCount();
+		}
 		if (rpTree.getChildren().size() == 0) {
 			if(anomalous.getAnomalous()) {
 //				System.out.println("DEBUG: Adding Anomalous row");
@@ -513,9 +524,25 @@ public class RPTreeGenerator {
 					leafStats.add(c);
 				}
 				rpTree.setLeafStats(leafStats);
+				int oldLevel = rpTree.getLevel();
+				//System.out.println("OLD LEVEL: "+oldLevel);
+				minSplit = (int) Math.round(Math.sqrt((rootCount + 1)));
+				if(rows.size() > 2*minSplit) {
+					String fileNameDataSet = "C:\\Users\\nitis\\Desktop\\CSC 591 - ASE\\HW 9\\tempDataSet.csv";
+					createTempDataSet(tbl, rpTree, newRow, fileNameDataSet);
+					Tbl newTable = new Tbl();
+					newTable.read(fileNameDataSet);
+					RPTree newTree = generateRPTreeForCluster(newTable, minSplit);
+					newTree = updateLevels(newTree, oldLevel);
+					newTree.setRoot(false);
+					//newTree.printTree(newTree);
+					rpTree = newTree;
+					//System.out.println("DEBUG: Modified cluster size "+rpTree.getSplitCount()+" children "+rpTree.getChildren().size());
+				}
 			}
 		}
 		else {
+			int oldLevel = rpTree.getLevel();
 			float x = newRowDistance(rpTree,tbl,newRow);
 			boolean prevAnomaly = anomalous.getAnomalous();
 			anomalous = getAnomaly(rpTree,x);
@@ -536,9 +563,74 @@ public class RPTreeGenerator {
 				size += r.getSplitCount();
 			}
 			rpTree.setSplitCount(size);
+			rpTree = updateLevels(rpTree, oldLevel);
 		}
 		return rpTree;
 	}
 
+	public void createTempDataSet(Tbl tbl, RPTree leaf, Row newRow, String fileName) {
+		PrintWriter writer;
+		try {
+			File file = new File(fileName);
+			if (file.exists()) {
+				file.delete();
+			}
+			writer = new PrintWriter(file);
+			StringBuilder sb = new StringBuilder();
+
+			for (int i = 0; i < tbl.getCols().size(); i++) {
+				if (i == tbl.getCols().size()-1) {
+					sb.append(tbl.getCols().get(i).getTxt());
+				}
+				else {
+					sb.append(tbl.getCols().get(i).getTxt());
+					sb.append(',');
+				}
+			}
+			sb.append('\n');
+			List<Row> rows = leaf.getRows();
+			rows.add(newRow);
+
+			for (Row row : rows) {
+				for (int j = 0; j < row.getCells().size(); j++) {
+					if (j == row.getCells().size()-1) {
+						if (row.getCells().get(j).equals("")) {
+							sb.append("?");
+						}
+						else {
+							sb.append(row.getCells().get(j));
+						}
+					}
+					else {
+						if (row.getCells().get(j).equals("")) {
+							sb.append("?");
+						}
+						else {
+							sb.append(row.getCells().get(j));
+						}
+						sb.append(',');
+					}
+				}
+				sb.append('\n');
+			}
+			writer.write(sb.toString());
+			writer.flush();
+		}
+		catch (FileNotFoundException e) {
+			System.out.println(e.getMessage());
+		}
+	}
+	
+	private RPTree updateLevels(RPTree rpTree, Integer level) {
+		rpTree.setLevel(level);
+		List<RPTree> children = rpTree.getChildren();
+		if(children.size() > 0) {
+			for(int i=0; i<rpTree.getChildren().size(); i++) {
+				children.set(i, updateLevels(children.get(i), level+1));
+			}
+			rpTree.setChildren(children);
+		}
+		return rpTree;
+	}
 
 }

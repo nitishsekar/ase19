@@ -6,7 +6,7 @@ public class TestAnomalousRowAdd {
 
     public static void main(String[] args) {
         Tbl tbl = new Tbl();
-        tbl.read("C:\\Users\\satan\\OneDrive\\Desktop\\xomo10000.csv");
+        tbl.read("C:\\Users\\nitis\\Desktop\\CSC 591 - ASE\\HW 7\\xomo10000.csv");
         int rc = tbl.getRowCount();
         List<Integer> vals = new ArrayList<>();
         for(int i = 0; i<rc; i++) {
@@ -24,11 +24,11 @@ public class TestAnomalousRowAdd {
         RPTreeGenerator rpTG = new RPTreeGenerator();
         RPTree node = rpTG.generateRPTree(newTbl);
         node.printTree(node);
+        System.out.println("\n");
         for(int i = 500; i<5000; i++) {
             Row newRow = tbl.getRows().get(vals.get(i));
             RPTreeGenerator.Anomalous anomalous = new RPTreeGenerator.Anomalous();
             anomalous.setAnomalous(false);
-//            System.out.println("Row "+(i-500));
             node = rpTG.addAnomalousRows(node, newTbl, newRow, anomalous);
         }
         node.printTree(node);
