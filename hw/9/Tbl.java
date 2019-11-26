@@ -77,9 +77,12 @@ public class Tbl {
 			}
 		}
 
-		for (List<String> lst : file) {
-			addRow(lst);
-		}
+//		for (List<String> lst : file) {
+//			addRow(lst);
+//		}
+		for (int i = 1; i < file.size(); i++) {
+		    addRow(file.get(i));
+        }
 		System.out.println("hi");
 	}
 
