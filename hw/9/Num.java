@@ -109,6 +109,16 @@ public class Num extends Col implements Cloneable {
         if(arg == low) setLow();
         if(arg == hi) setHi();
     }
+
+    public void clearAllVals() {
+    	this.valList.clear();
+    	this.meanList.clear();
+    	this.sdList.clear();
+    	this.prevSum = 0.0f;
+		this.count = 0;
+		this.hi = -Float.MAX_VALUE;
+		this.low = Float.MAX_VALUE;
+	}
 	
 	public float deleteFirstNum() throws IOException {
         Float arg = valList.get(0);

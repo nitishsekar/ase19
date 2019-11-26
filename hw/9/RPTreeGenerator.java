@@ -528,7 +528,7 @@ public class RPTreeGenerator {
 				//System.out.println("OLD LEVEL: "+oldLevel);
 				minSplit = (int) Math.round(Math.sqrt((rootCount + 1)));
 				if(rows.size() > 2*minSplit) {
-					String fileNameDataSet = "C:\\Users\\nitis\\Desktop\\CSC 591 - ASE\\HW 9\\tempDataSet.csv";
+					String fileNameDataSet = "tempDataSet.csv";
 					createTempDataSet(tbl, rpTree, newRow, fileNameDataSet);
 					Tbl newTable = new Tbl();
 					newTable.read(fileNameDataSet);

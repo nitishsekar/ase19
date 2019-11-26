@@ -33,6 +33,13 @@ public class Sym extends Col{
     	this.entropyList = sym.entropyList;
     }
 
+    public void clearAllVals() {
+        this.words.clear();
+        this.colMap.clear();
+        this.totalCount = 0;
+        this.modeCount = Integer.MIN_VALUE;
+    }
+
     public void addSymbol(String colVal) {
         if (colMap.containsKey(colVal)) {
         	int newTotal = colMap.get(colVal)+1;

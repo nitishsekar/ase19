@@ -50,22 +50,9 @@ public class Tbl {
 		this.my = tbl.my;
 	}
 
-	public Tbl(Tbl tbl, List<Row> rows, List<List<String>> file) {
+	public Tbl(Tbl tbl, List<Row> rows, List<List<String>> file) throws IOException {
+		System.out.println("hello");
 		this.rows = new ArrayList<>();
-		for(int i=0; i<rows.size(); i++) {
-			this.rows.add(new Row(rows.get(i)));
-		}
-		this.cols = new ArrayList<>();
-		for(int i=0; i<tbl.cols.size(); i++) {
-			Col c = tbl.cols.get(i);
-			if(c.getClass() == Num.class) {
-				this.cols.add(new Num((Num) c));
-			} else if(c.getClass() == Sym.class) {
-				this.cols.add(new Sym((Sym) c));
-			} else {
-				this.cols.add(new Col(c));
-			}
-		}
 		this.file = new ArrayList<>();
 		for(int i=0; i<file.size(); i++) {
 			this.file.add(file.get(i));
@@ -73,6 +60,27 @@ public class Tbl {
 		this.ignoreCol = tbl.ignoreCol;
 		this.symCols = tbl.symCols;
 		this.my = tbl.my;
+//		clearCols(tbl.getCols());
+		this.cols = new ArrayList<>();
+		for(int i=0; i<tbl.cols.size(); i++) {
+			Col c = tbl.cols.get(i);
+			if(c.getClass() == Num.class) {
+				Num n = new Num((Num) c);
+				n.clearAllVals();
+				this.cols.add(n);
+			} else if(c.getClass() == Sym.class) {
+				Sym s = new Sym((Sym)c);
+				((Sym) c).clearAllVals();
+				this.cols.add(c);
+			} else {
+				this.cols.add(new Col(c));
+			}
+		}
+
+		for (List<String> lst : file) {
+			addRow(lst);
+		}
+		System.out.println("hi");
 	}
 
 	public List<List<String>> getFile() {
@@ -81,6 +89,27 @@ public class Tbl {
 
 	public void setFile(List<List<String>> file) {
 		this.file = file;
+	}
+
+	public void clearCols(List<Col> cols) throws IOException {
+		for (Col col : cols) {
+			if (col.getClass() == Num.class) {
+				col = (Num) col;
+				int size = ((Num) col).getValList().size();
+				for (int i = 0; i < size; i++) {
+					((Num) col).deleteIthNum(0);
+//					System.out.println("Deleted "+i);
+				}
+//				System.out.println("hi");
+			}
+			if (col.getClass() == Sym.class) {
+				col = (Sym) col;
+				int size = ((Sym)col).getValList().size();
+				for (int i = 0; i < size; i++) {
+					((Sym) col).deleteIthSym(0);
+				}
+			}
+		}
 	}
 	
 	public void setCols(List<String> row) {
