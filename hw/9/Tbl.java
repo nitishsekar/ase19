@@ -51,7 +51,7 @@ public class Tbl {
 	}
 
 	public Tbl(Tbl tbl, List<Row> rows, List<List<String>> file) throws IOException {
-		System.out.println("hello");
+//		System.out.println("hello");
 		this.rows = new ArrayList<>();
 		this.file = new ArrayList<>();
 		for(int i=0; i<file.size(); i++) {
@@ -83,7 +83,7 @@ public class Tbl {
 		for (int i = 1; i < file.size(); i++) {
 		    addRow(file.get(i));
         }
-		System.out.println("hi");
+//		System.out.println("hi");
 	}
 
 	public List<List<String>> getFile() {
@@ -261,7 +261,7 @@ public class Tbl {
 	public String read(String fileName) {
 		BufferedReader csvReader;
 		try {
-			System.out.println("Reading file: "+fileName);
+//			System.out.println("Reading file: "+fileName);
 			csvReader = new BufferedReader(new FileReader(fileName));
 			String line;
 			int rowCount = 0, colCount = 0;

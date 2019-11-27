@@ -118,6 +118,8 @@ public class Num extends Col implements Cloneable {
 		this.count = 0;
 		this.hi = -Float.MAX_VALUE;
 		this.low = Float.MAX_VALUE;
+		this.mean = 0.0;
+		this.stdDev = 0.0;
 	}
 	
 	public float deleteFirstNum() throws IOException {

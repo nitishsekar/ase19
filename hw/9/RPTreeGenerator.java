@@ -517,28 +517,28 @@ public class RPTreeGenerator {
 				rows.add(newRow);
 				rpTree.setRows(rows);
 				rpTree.setSplitCount(rows.size());
-				My my = tbl.getMy();
-				List<Col> leafStats = new ArrayList<>();
-				for (Integer i : my.getGoals()) {
-					Col c = tbl.getCols().get(i - 1);
-					leafStats.add(c);
-				}
-				rpTree.setLeafStats(leafStats);
+//				My my = tbl.getMy();
+//				List<Col> leafStats = new ArrayList<>();
+//				for (Integer i : my.getGoals()) {
+//					Col c = tbl.getCols().get(i - 1);
+//					leafStats.add(c);
+//				}
+//				rpTree.setLeafStats(leafStats);
 				int oldLevel = rpTree.getLevel();
 				//System.out.println("OLD LEVEL: "+oldLevel);
 				minSplit = (int) Math.round(Math.sqrt((rootCount + 1)));
-				if(rows.size() > 2*minSplit) {
-					String fileNameDataSet = "tempDataSet.csv";
-					createTempDataSet(tbl, rpTree, newRow, fileNameDataSet);
-					Tbl newTable = new Tbl();
-					newTable.read(fileNameDataSet);
-					RPTree newTree = generateRPTreeForCluster(newTable, minSplit);
-					newTree = updateLevels(newTree, oldLevel);
-					newTree.setRoot(false);
-					//newTree.printTree(newTree);
-					rpTree = newTree;
+//				if(rows.size() > 2*minSplit) {
+				String fileNameDataSet = "tempDataSet.csv";
+				createTempDataSet(tbl, rpTree, newRow, fileNameDataSet);
+				Tbl newTable = new Tbl();
+				newTable.read(fileNameDataSet);
+				RPTree newTree = generateRPTreeForCluster(newTable, minSplit);
+				newTree = updateLevels(newTree, oldLevel);
+				newTree.setRoot(false);
+				//newTree.printTree(newTree);
+				rpTree = newTree;
 					//System.out.println("DEBUG: Modified cluster size "+rpTree.getSplitCount()+" children "+rpTree.getChildren().size());
-				}
+//				}
 			}
 		}
 		else {
