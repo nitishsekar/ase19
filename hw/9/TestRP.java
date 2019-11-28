@@ -11,7 +11,7 @@ public class TestRP {
 		Tbl tbl = new Tbl();
 		//tbl.read("C:\\Users\\nitis\\Desktop\\CSC 591 - ASE\\HW 7\\xomo10000.csv");
 		//tbl.read("C:\\Users\\nitis\\Desktop\\CSC 591 - ASE\\HW 7\\pom310000.csv");
-		tbl.read("C:\\Users\\satan\\OneDrive\\Desktop\\auto.csv");
+		tbl.read("C:\\Users\\satan\\OneDrive\\Desktop\\xomo10000.csv");
 		RPTreeGenerator rpTG = new RPTreeGenerator();
 		RPTree node = rpTG.generateRPTree(tbl);
 		node.printTree(node);

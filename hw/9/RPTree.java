@@ -2,6 +2,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 public class RPTree {
@@ -13,6 +14,7 @@ public class RPTree {
 	private List<Row> rows;
 	private RPTree envy;
 	private FastMapResponse fastMapResponse;
+	private HashSet<Integer> indicesSet;
 	
 	public RPTree getEnvy() {
 		return envy;
@@ -29,6 +31,7 @@ public class RPTree {
 		level = 0;
 		splitCount = 0;
 		rows = new ArrayList<>();
+		indicesSet = new HashSet<Integer>();
 	}
 
 	public List<Row> getRows() {
@@ -88,7 +91,11 @@ public class RPTree {
 		this.fastMapResponse = fastMapResponse;
 	}
 
-
+	public void updateHashSet(List<Row> rows) {
+		for (Row row : rows) {
+			indicesSet.add(row.getIndex());
+		}
+	}
 
 	public void printTree(RPTree r) {
 		if(!r.isRoot) {

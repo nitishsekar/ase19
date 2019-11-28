@@ -483,6 +483,7 @@ public class Tbl {
 					}
 				}
 				rows.add(newRow);
+				newRow.setIndex(i);
 			}
 		}
 		//printRows();
