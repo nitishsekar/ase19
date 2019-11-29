@@ -9,7 +9,8 @@ public class TestRPTreeProbes {
         Double CONF = 0.95;
         Double SMALL = 0.38;
         Tbl tbl = new Tbl();
-        tbl.read("C:\\Users\\satan\\OneDrive\\Desktop\\pom310000.csv");
+        tbl.read("pom310000.csv");
+        // tbl.read("xomo10000.csv");
         RPTreeGenerator rpTG = new RPTreeGenerator();
         Tbl newTbl = new Tbl(tbl);
         RPTree node = rpTG.generateRPTree(newTbl);
