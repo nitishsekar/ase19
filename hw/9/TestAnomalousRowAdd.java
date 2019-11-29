@@ -6,7 +6,8 @@ public class TestAnomalousRowAdd {
 
     public static void main(String[] args) {
         Tbl tbl = new Tbl();
-        tbl.read("C:\\Users\\satan\\OneDrive\\Desktop\\xomo10000.csv");
+        tbl.read("xomo10000.csv");
+        // tbl.read("pom310000.csv");
         int rc = tbl.getRowCount();
         List<Integer> vals = new ArrayList<>();
         for(int i = 0; i<rc; i++) {
