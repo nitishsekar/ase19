@@ -10,4 +10,6 @@ In this assingnment, we've written code to generate RPTrees using an entire data
   
 Run class ```TestRPTreeProbes``` to perform the comparison between the two types of RPTrees. By default, the ```magicAlpha``` is set as 0.5 in class ```RPTreeGenerator```. You can change it there.  
   
+<b>Note:</b> Keep the CSVs and the code in the same directory while running.  
+  
 To calculate the "same" score, we consider two clusters same if all of their goals result in <b>true</b> after running ```Num.same()```. Check <i>report.txt</i> for a detailed report on the same scores. 
