@@ -168,6 +168,7 @@ public class RPTreeGenerator {
 			rpNode.setSplitCount(tbl.getRowCount());
 			Tbl leafTbl = new Tbl(tbl);
 			rpNode.setRows(leafTbl.getRows());
+			rpNode.updateHashSet(rpNode.getRows());
 			return rpNode;
 		} else {
 			FastMapResponse resp = getBestPivots(tbl);

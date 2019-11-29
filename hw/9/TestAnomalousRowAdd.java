@@ -18,7 +18,7 @@ public class TestAnomalousRowAdd {
         randomFile.add(tbl.getFile().get(0));
         for(int i = 0; i<500; i++) {
             randomRows.add(tbl.getRows().get(vals.get(i)));
-            randomFile.add(tbl.getFile().get(vals.get(i)));
+            randomFile.add(tbl.getFile().get(vals.get(i)+1));
         }
         try {
             Tbl newTbl = new Tbl(tbl,randomRows,randomFile);

@@ -3,6 +3,7 @@ import java.util.List;
 
 public class Row {
 	private List<String> cells;
+	private int index;
 	
 	public Row() {
 		cells = new ArrayList<String>();
@@ -13,6 +14,15 @@ public class Row {
 		for(String s:r.cells) {
 			this.cells.add(s);
 		}
+		this.index = r.getIndex();
+	}
+
+	public int getIndex() {
+		return index;
+	}
+
+	public void setIndex(int index) {
+		this.index = index;
 	}
 	
 	public Float dominates(Row i, Row j, List<Col> goals) {
