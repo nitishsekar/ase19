@@ -18,7 +18,7 @@ public class RPTreeGenerator {
 	private Integer rootCount;
 	private List<RPTree> leaves;
 	private Tbl centroidTbl;
-	private Float magicAlpha = 0.5f;
+	private Float magicAlpha = 0.6f;
 	
 	public RPTree generateRPTree(Tbl tbl) {
 		minSplit = (int) Math.round(Math.sqrt(tbl.getRowCount()));
@@ -589,7 +589,19 @@ public class RPTreeGenerator {
 				}
 			}
 			sb.append('\n');
+
 			List<Row> rows = leaf.getRows();
+			for (int i : tbl.getIgnoreCol()) {
+				for (Row row : rows) {
+					try {
+						if (!row.getCells().get(i).equals("")) {
+							row.getCells().add(i,"");
+						}
+					} catch (Exception e) {
+						System.out.println("Error");
+					}
+				}
+			}
 			rows.add(newRow);
 
 			for (Row row : rows) {

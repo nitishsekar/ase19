@@ -81,7 +81,9 @@ public class Tbl {
 //			addRow(lst);
 //		}
 		for (int i = 1; i < file.size(); i++) {
-		    addRow(file.get(i));
+//		    addRow(file.get(i));
+			addRowWithIgnore(file.get(i));
+
         }
 //		System.out.println("hi");
 	}
@@ -213,6 +215,66 @@ public class Tbl {
 							
 						}
 					}
+				}
+				colCount++;
+			}
+		}
+		rows.add(newRow);
+	}
+
+	public void addRowWithIgnore(List<String> row) {
+		int colCount = 0;
+		Row newRow = new Row();
+		if(row != null) {
+			for(int j=0; j<row.size(); j++) {
+				if(!ignoreCol.contains(j)) {
+					String s = row.get(j);
+					if("?".equals(s)) {
+						newRow.addCell("");
+						/* Adding 0 when ? is encountered. Is this right? */
+						Col col = cols.get(colCount);
+						if(col.getClass() == Num.class) {
+							try {
+								Num num = (Num) col;
+								num.updateMeanAndSD(0.0f);
+								cols.set(colCount, num);
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+						}
+					} else {
+						if(symCols.contains(colCount)) {
+							newRow.addCell(s);
+							Sym sym = (Sym) cols.get(colCount);
+							sym.addSymbol(s);
+							cols.set(colCount, sym);
+						} else {
+							try {
+								Integer val = Integer.parseInt(s);
+								newRow.addCell(val);
+								Num col = (Num) cols.get(colCount);
+								try {
+									col.updateMeanAndSD((float)val);
+									cols.set(colCount, col);
+								} catch (IOException e) {
+									e.printStackTrace();
+								}
+							} catch(NumberFormatException e) {
+								Float val = Float.parseFloat(s);
+								newRow.addCell(val);
+								Num col = (Num) cols.get(colCount);
+								try {
+									col.updateMeanAndSD(val);
+									cols.set(colCount, col);
+								} catch (IOException e2) {
+									e2.printStackTrace();
+								}
+							}
+
+						}
+					}
+				} else {
+					newRow.addCell("");
 				}
 				colCount++;
 			}
@@ -432,7 +494,9 @@ public class Tbl {
 						}
 					} else {
 						ignoreCol.add(colCount);
-						cols.add(new Col());
+						Col c = new Col();
+						c.setTxt(s);
+						cols.add(c);
 					}
 					colCount++;
 				}
