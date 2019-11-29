@@ -1,0 +1,27 @@
+"Same" score table:  
+  
+ Alpha  |         XOMO                        |          POM3                        |
+        +=====================================+======================================+
+        | Baseline | Increment (Found)        | Baseline | Increment  (Found)        |   
+========+==========+==========================+==========+===========================+
+  0.5   | 0.1225   |  0.1 (20 out of 2000)    | 0.234    |  0.2 (10 out of 2000)     |
+  0.6   | 0.1085   |  0.025 (40 out of 2000)  | 0.237    |  0.1087 (46 out of 2000)  |
+  0.7   | 0.096    |  0.025 (40 out of 2000)  | 0.25     |  0.149 (74 out of 2000)   |
+  0.8   | 0.1085   |  0.0 (20 out of 2000)    | 0.269    |  0.1167 (60 out of 2000)  |
+  0.9   | 0.089    |  0.059 (51 out of 2000)  | 0.234    |  0.1 (20 out of 2000)     |
+========+==========+==========================+==========+===========================+
+
+We select 100 probes initially, and calculate the "same" score based on the BEFORE and AFTER values of the probes. For the first RPTree, 
+we find all the probes after each iteration, as the entire dataset is used. But, for the incremental trees, there is not guarantee that 
+all or most of the probes would be present in the clusters, as they might not be in the initial 500 rows, or they might not not be 
+anomalous with respect to the initial 500.  
+
+In the table, for the incremental scores, we have mentioned how many times we found AFTER values for the probes, out of a possible 2000 
+(20 iterations and 100 probes). Based on this, we calculated the incremental scores.  
+
+
+As we can see, the number of probes found mostly increases as we increase alpha from 0.5. From what we can see, there is no discerable 
+trend in the scores vis-a-vis alpha. The only thing we can say is that as the alpha increases, the number of probes found would increase, 
+and as a result the score would be more indicative of the incremental tree, because the sample size would be greater.  
+
+In general, we see that the incremental score is always less than the baseline, and close to or less than half in most cases.
