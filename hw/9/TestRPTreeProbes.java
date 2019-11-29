@@ -9,7 +9,7 @@ public class TestRPTreeProbes {
         Double CONF = 0.95;
         Double SMALL = 0.38;
         Tbl tbl = new Tbl();
-        tbl.read("C:\\Users\\satan\\OneDrive\\Desktop\\xomo10000.csv");
+        tbl.read("C:\\Users\\satan\\OneDrive\\Desktop\\pom310000.csv");
         RPTreeGenerator rpTG = new RPTreeGenerator();
         Tbl newTbl = new Tbl(tbl);
         RPTree node = rpTG.generateRPTree(newTbl);
@@ -101,7 +101,8 @@ public class TestRPTreeProbes {
                 // node.printTree(node);
             } catch (Exception e) {
                 System.out.print("ERROR: ");
-                System.out.println(e.getMessage());
+                e.printStackTrace();
+                //System.out.println(e.getMessage());
             }
 
             leaves = rpTG.getLeaves(incNode);
@@ -129,10 +130,6 @@ public class TestRPTreeProbes {
                         break;
                     }
                 }
-
-
-
-
             }
         }
         Double incScore = (double) trueCtr / ctr;
