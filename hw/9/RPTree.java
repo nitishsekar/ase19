@@ -54,6 +54,10 @@ public class RPTree {
 		return leafStats;
 	}
 
+	public HashSet<Integer> getIndicesSet() {
+		return indicesSet;
+	}
+
 	public void setLeafStats(List<Col> leafStats) {
 		this.leafStats = leafStats;
 	}
